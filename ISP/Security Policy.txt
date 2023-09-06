@@ -1,0 +1,82 @@
+Lesson 4: Security Policy
+
+4.1 Introduction to Security Policy
+Different organizations have different assets they control, threats they face, and goals they wish to achieve. Therefore, different organizations will have to create different security policies to follow in order to keep their organization secure.
+
+A security policy is a statement that partitions the states of a system into a set of authorized or secure states and a set of unauthorized or non-secure states.
+
+A secure system is a system that starts in an authorized state and cannot enter an unauthorized state.
+
+A breach of security occurs when a system enters an unauthorized state.
+
+Elements of Security Policy and Security Mechanisms
+In each of the definitions we have some entities (that we call X) that want access to information (that we call Y).
+
+Confidentiality: Let X be a set of entities and Y  be some information. Then Y has the property of confidentiality with respect to X if no member of X can obtain information about Y .
+
+Integrity: Let X be a set of entities and Y  some information. Then Y has the property of integrity with respect to X if Y  is unmodifiable by X.
+
+Availability: Let X be a set of entities
+
+4.2 Security Policy Types, Models, Levels
+
+The Bell-LaPadula model is a simple security policy based on preserving the confidentiality of data. It reflects military hierarchy and data labeling. The concept is very simple: you label data with a classification label that exists in a hierarchy, and you 
+label entities in the organization with the access rights that correspond to the data labels. If the entity has a need to read a piece of information, and the data label is lesser than or equal to the label held by the entity, the entity, the entity can read 
+it. If the entity has a reason to write to the data, and the data has a label greater than or equal to the entity's, the entity can write to it. Said simple: no read up, no write down.
+
+Simple Security Property: L(o) <= L(s)
+A subject s may have read access to an object o if and only if L(o) <= L(s) and s has discretionary read access to o.
+(Security clearance of subject has to be at least as high as that of the object).
+
+*-Property: L(o) >= L(p) 
+A subject s who has read access to an object p may have write access to an object o only if L(o) >= L(p) and s has discretionary write access to o.
+(Contents of a sensitive object can only be written to objects at least as high. That is, prevent write-down).
+
+the Biba model focuses on integrity instead of confidentiality, and therefore inverts the rules of the labeling. Each piece of data is labeled with an integrity label, as is each entity in the system. If a given entity wants to write to a piece of data, 
+the data should benefit from the integrity of the individual, or at least remain neutral. For this reason the entity can only write equal to its level, or write down. However, entities should only read material that would increase their integrity. For that 
+reason, the entity should only be able to read documents that are labeled with an integrity label greater than or equal to their own.
+
+Lipner's model is a much more practical model than the previous two we discussed, and something more like Lipner's model is more likely to be found in a real organization. This model contains three principles that are used to ensure that the
+ organization remains safe. There principles are separation of duty, separation of function, and auditing. If an organization follows separation of duty, if two or more steps are required to perform a critical function, at least two different people 
+ should perform the steps. If an organization follows the separation of function, then resources such as servers, repositories, etc., should be isolated from each other based on function. A development server should hold code in development, while a 
+ production server should host the code for people to access. Finally, an organization should audit, that is they should analyze systems to determine what actions took place, and who performed them. In the following video we will explore this in more detail,
+ and discuss how this breaks down into a combination of the two previous policy models in different compartments.
+ 
+ In the Biba model and the Lipner model we have considered who can change what information, but we never put any thought into how an entity is allowed to change data. This idea is tackled by the Clark-Wilson Integrity model.
+
+The Clark-Wilson model is primarily concerned with formalizing the notion of information integrity. Information integrity is maintained by preventing corruption of data items in a system due to either error or malicious intent. An 
+integrity policy describes how the data items in the system should be kept valid from one state of the system to the next and specifies the capabilities of various principles in the system. The model defines enforcement rules and certification rules. 
+The model’s enforcement and certification rules define data items and processes that provide the basis for an integrity policy.
+
+Consider a consulting agency that provides some form of business assistance to multiple companies. If this consulting agency is meant to provide its services for multiple competing companies, this could lead to conflicts of interest. However, if the 
+consulting agency only works for companies that do not directly compete with each other, conflicts of interest are avoided. This is the general principle of the Chinese Wall model.
+
+4.3 Security Policies and Trust
+Trust is a tricky concept with many definitions, but in this course we will define trust as the expectation that arises within a community of regular, honest, cooperative behavior based on commonly shared norms1. So when we say we trust a mechanism, we 
+are not actually trusting that mechanism. Instead, we are trusting the organization that created that mechanism, and we are trusting them because of a common set of norms that we share with them
+
+For this reason, we always want to keep the following questions in mind when writing our policies, which are the norms that we expect the individuals in the organization to conform to.
+
+What behavior do we wish to see upheld?
+This is the most obvious question. If policies are a series of norms to be upheld, we need to make sure we have this desired list of behaviors identified before we write our policy.
+ 
+Is our policy clear?
+As we mentioned earlier, a violation of the policy is more likely to be a misunderstanding, confusion, or ignorance than an actual malicious event. In order to avoid this as much as possible, a policy should be clear and concise. The more you confuse the 
+individuals of an organization, the more likely one of these misunderstandings is to occur.
+ 
+Who do we trust and distrust?
+As we will explore in the next subsection, there are still hawks out there. When writing our policies, we want to do our best to keep who those hawks might be in mind, and write our policy to ensure that they have a hard time taking advantage of us and 
+our system.
+
+However, when we choose mechanisms to install, we must think about whether or not they meet the given goal. We must consider the answer to the following questions to ensure that the mechanism we choose is the correct one.
+
+Do I trust this mechanism?
+There can be a lot that goes into this question, but often times this comes down to the reputation of the organization that created the mechanism, and their record with security and quality of products.
+ 
+Does the mechanism sit between the asset I wish to protect and the untrusted party? Said another way, does this mechanism create a proper trust boundary?
+ 
+Does the mechanism enforce the "norm," or policy, that the organization desires?
+
+4.4 Security Policies in Practice
+Should policies have to explicitly allow things in order for them to happen (called inclusive policies), or should they only prohibit certain, explicitly stated behaviors and allow everything else (called exclusive policies)?
+

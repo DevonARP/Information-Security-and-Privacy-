@@ -1,0 +1,197 @@
+Lesson 7: Access Control (1): Operating Systems and Phones
+
+7.1 Introduction to Access Control
+Access control mechanisms take as input security policies and attempted actions, and output an accept or reject on that action. The security policy that goes into the access control mechanism defines what a subject is allowed to do, and/or what may be with
+ an object. There are differences in how each access control mechanism works, and in the remainder of this lesson we will explore these differences.
+
+Access Control Functions
+Access control has to server three main functions in order to be successful at what they do. These functions are identification, authentication (as discussed in the last lecture), and authorization.
+
+Identification
+Identification is a method of establishing the subject’s1 identity through the use of user name or other public information that conforms to identification component requirements. Each value should be unique, for user accountability, and a standard naming 
+scheme should be followed. The value should be non-descriptive of the user’s position or tasks, and the value should not be shared between users.
+1: Examples of subject's include user, program, process.
+
+Authentication
+A method of proving the identity using something a subject is, has, or knows.This might include the use of biometrics, passwords, passphrase, token, or other private information, as discussed in the previous lesson.
+
+Authorization
+A process that determines that the proven identity has some set of characteristics associated with it that gives it the right to access the requested objects. This access criteria can be thought of as roles or rules.
+
+7.2 Access Control Models
+There are many models that attempt to achieve access control. However, all of them has one thing in common: the existence of the reference monitor. A reference monitor is a secure, always-used and fully-testable module that controls all access to data 
+objects or devices. The reference monitor verifies the nature of the request against a table of allowable access types for each process on the system.
+
+It is very important that the reference monitor always be used. If it is possible to bypass the reference monitor, then there exists an avenue for attackers to attempt to bypass all access control. Nobody, no matter how important or how influential, 
+must be able to bypass this mechanism.
+
+Discretionary Access Control (DAC)
+A system that uses discretionary access control allows the owner of the resource to specify which subjects can access which resources. Said another way, access control is at the discretion of the owner of the resource.
+
+Mandatory Access Control (MAC)
+In Mandatory Access Control, access is based on a security labeling system. Users have security clearances and resources have security labels that contain data classifications. This model is used in environments where information classification and 
+confidentiality is very important, such as the military.
+
+Non-Discretionary (Role Based) Access Control Models
+Role Based Access Control (RBAC) uses a centrally administered set of controls to determine how subjects and objects interact.
+It is the best system for an organization that has high turnover, like typical businesses.
+
+7.3 Access Control Techniques
+Role-Based Access Control
+As mentioned in the previous section, role-based access control uses a centrally administered set of controls to make access control decisions. In a given organization, subjects can have one or more roles. These roles come with tasks that they must perform. 
+A subject in a given role requires access to certain objects in order to achieve there task. Therefore, in this access control method, the role or roles that a subject is assigned matters more in access control decisions than the identity of the subject. A
+ subject may have more than one role, and many subjects may share the same role. This makes it ideal for institutions that experience a lot of churn and internal movement, since roles can provide a way to reassign authorization to objects very quickly.
+
+Content Dependent Access Control
+Content dependent access control is a method of performing access control based on the type of content contained in an object. Imagine that an organization keeps track of the types of content held in each object. Certain subjects are allowed to access certain 
+types of content. A subject is allowed to access an object if the object contains only types of content that the subject is allowed to access. Therefore, access control decisions are content dependent, leading to this method’s name.
+
+Context Based Access Control
+Context based access control is an access control method based on the context of a subject’s request to an object, in addition to just the identities of the subject and object themselves. This is a little different from other methods, and requires more 
+information to make a decision. For example, consider an organization with an employee, Bob. Usually, Bob reads information about the organization’s transactions at the end of each week to ensure that nothing suspicious is happening. This is done each Friday 
+during work hours.
+
+Now, imagine that there is a read request to the transaction data coming from Bob’s account on a Sunday night at 11 PM. The context of this request is very abnormal, since it is coming from outside of Bob’s working hours, and on a weekend. If we were using 
+context based access control, this request may be rejected. However, other types of access control (including DAC, MAC, RBAC and Content Dependent Access Control) may let this access occur, since Bob clearly has permission to read the transaction data in
+ other circumstances.
+
+Constrained User Interfaces
+One way that we can enforce access control is by constraining the user interface used to get access. This can be done by not allowing certain types of access on the interface, or not including the ability to request certain types of access, or access to certain 
+objects. There are three major types of constrained user interfaces. They include menus and shells, database views, and physically constrained interfaces.
+
+Access Control Matrix (ACM)
+In addition to constraining user interfaces, we can control access to objects through other methods such as access control matrices. Imagine that we have a table, where each row corresponds to a subject in a system and each column corresponds to an object in 
+the system. Then, each cell in the table corresponds to a subject-object pair, and can contain what access rights the subject has to the object. An example of an access control matrix is demonstrated below.
+
+Access Control Lists (ACLs)
+One problem with access control matrices is that they can grow very large very quickly. Imagine a system with thousands of subjects, and millions of objects. Storing the matrix itself becomes a very costly thing to do. In order to address this problem, 
+we have the concept of an access control list. An access control list (ACL) is a set of permissions that correspond to an object. Each permission usually specifies a subject and an access right to the object. For example, consider a system with three 
+subjects: Alice, Bob, and Carla. The following represents an ACL for a file on this system, File A.
+
+7.4 OS Mechanisms: MULTICS & UNIX
+MULTICS
+One of the first systems to be designed with security in mind was MULTICS, which was a time-sharing operating system, was designed between 1964 and 1967 at MIT. Though Multics is no longer in use today, it helps us understand where a lot of modern access 
+control techniques come from, and demonstrates how different processes could be stopped from bypassing access control using a few primitives: virtual memory, ring structure, segments, and channels.
+
+MULTICS Access Model
+MULTICS was designed with the concept of time-sharing in mind. This means that multiple processes were going to be using the machine at once, so one could not make simple assumptions about one process not being able to access the the memory or state of 
+another. Instead, MULTICS needed a way to handle access control with multiple processes running at once. The security designs of MULTICS boiled down into the primitives described below.
+
+Ring structure
+MULTICS was broken down into rings, which were domains in which a process executes. Rings were numbered, with a lower number meaning more privileges. The kernel’s ring was ring 0. Every process had all of the privileges of every ring numbered above the
+ ring it was executing in. For example, consider a process in ring 1. This process would have all of the privileges in ring 1, plus all of the privileges in ring 2, plus all of the privileges in ring 3, and so on.
+
+Segments
+In addition to rings, MULTICS upheld security with the idea of segments. Basically, segments were data and text areas within a program that you could call into. Processes could not call into the middle of a segment. Instead, it can only call a segment 
+at restricted entry points. This was to avoid the issue of processes jumping into the middle of a segment, past the portions of the code that checked for access control, in order to ensure that they could not access an object they were not allowed to access.
+
+Multics Process
+In MULTICS, each process consisted of multiple segments that were dynamically linked. The linking process used the file system to find segments, which may be shared by several processes.
+
+Processes could have procedures and data segments in multiple rings, and access depended on two mechanisms: a per-segment access control mechanism and concentric rings of protection. The per-segment access control allowed file authors to specify the 
+users that had access to it, while the concentric rings of protection forced access to inner rings to go through a gatekeeper, which ensured access was authorized.
+
+Process communicated with each other through channels, which was a way of communicating data through different processes and different rings efficiently and securely.
+
+Pros and Cons
+
+Though Multics was first successful operating system to have security as a consideration from the beginning, it had its issues. It turned out to be unwieldy to use in practice, which lead to the successor that we may be much more familiar with: Unix.
+ Nonetheless, the innovations of the principled security guarantees and the ring model system created a fundamental for operating system security, and are still used in practice in modern day operating systems.
+
+In the following video we will explore MULTICS through a historical lens, and with a focus on its security methods. This exploration allows us to understand the invention of the fundamentals that all modern day operating systems build on, and how we began 
+to consider security in the development of our operating systems.
+
+UNIX
+The modern successor to MULTICS, which is still used in many ways to this day, is UNIX. UNIX began in the 1970’s, and has evolved into many modern operating systems, including Mac, BSD, and Linux. The operating system was written in a mixture of C and 
+assembly language, and improved upon MULTICS in many ways.
+
+UNIX Access Model
+In this section we’re going focus on UNIX access control models.
+
+Users
+
+In UNIX, each user has a user ID (UID), which is a uniquely identifying number that is linked to their username. In addition to each normal user there are a few special user accounts. The most important of these user accounts is root, which has a UID of 
+0 and can do almost anything in the system. If an attacker is able to access the root account, they have unhindered access to the system and can accomplish any goal them may have.
+
+In addition to root there are other special users in UNIX. These include daemon or sys, which handles some important services including some networking, ftp, which is used for anonymous FTP access, uucp, which manages the UNIX-to-UNIX copy system, guest
+ which is used for site visitors, lp which is used by printer systems, and more.
+
+Groups
+
+In addition to users, UNIX also has the concept of groups. Each group has a unique group ID (GID), and each user belongs to one or more groups. Groups are useful for access control features, since they allow an easy way to apply some coarse grained access 
+control rules to users quickly.
+
+Just like special users, there are also some special groups in UNIX. The first is the “wheel” group, which is the group of system administrators. In addition, there are special groups such as uucp, lp, and more listed above, which correspond to special users 
+in the system.
+
+Permissions
+
+UNIX contains a limited set of basic permissions for an object: read, write, and execute. Read and write are straightforward to understand. If a user has read permission to a file, that user can view the content contained in that file. If the user has write 
+permission to a file, they can modify that file. Execute, however, can be a little trickier to understand. In the video below we will explore some scenarios in which execution permissions are not straightforward.
+
+In addition to these basic permissions, objects also have ownership information stored. A file’s owner can modify the permissions of the file.
+
+Unix File Access Control
+As mentioned earlier, there are three simple permissions that can occur on a file or directory: read, write, and execute. But what subjects are held to this?
+
+Before we can discuss permissions, we first need to explore how information about a file is stored in UNIX. In UNIX, permissions are stored as access control lists in a structure called an inode. The inode also stores other information about a file, 
+such as the user who owns it, the group who owns it (more on these later), the time it was last accessed, the time it was last modified, the time the inode was last modified, the size of the file, and where on the disk the file sits. A representation of 
+an inode can be seen below.
+
+Special Cases
+
+There are some specific circumstances that do apply to file permissions. For example, file permissions do not apply to symoblic links, as discussed in the video below. In addition, these permissions have different meanings when applied to directories. 
+For example, the execute permission on a directory means you can list the files in that directory.
+
+UNIX: Process Operations and IDs
+It may be true that in some cases you need to change your user ID temporarily to get things done, such as change the storage of your password on a system file. How is this achieved? In the following video you will learn about setuid, and effective uids, 
+and more, which make this type of temporary elevation of privilege possible on UNIX systems.
+
+Umask and Default Permissions
+Now that we learned about the UNIX access control model and the different values we can give to the owner, group and other, we may still have some remaining questions. For example, what are the default permissions? What if we need some more fine
+ grained controls than this?
+
+7.5 OS Mechanisms: Windows (NTFS+) & Android
+Windows (NTFS+)
+Access control in Windows machines is handled differently than UNIX systems and their derivatives. There exist similarities, such as the fact that Windows permissions are implemented as access control lists, that specify permissions based on user and group.
+ However, in general Windows permissions are more flexible than UNIX permissions, and offer explicit denies, and explicit permissions for deletion of objects. There also exist some additional concepts, such as tokens and security attributes, which will be 
+ covered later in this section. Last, in Windows partial administrator access can be given, which is different from the UNIX design.
+
+In the Windows model subjects are identified using the security ID which replaces the UID. In addition to storing the SID, Windows also stores a revision number for this value, and a 48-bit authority value. Users, groups, computers, domains, and domain members
+ all have SIDs.
+
+ 
+
+Access is controlled via ACLs. There ACLS include the security identifier of the entity that owns the object, the regular ACL for access permissions, a system ACL that is used for auditing, and a group security identifier. Each of these ACLS is comprised 
+of an access control entity (ACE), which are comprised of basic permissions such as read (r), write (w), execute (e), delete (d), change access permissions (p), and take ownership (o). There are standard templates of permissions which are combinations 
+derived from the basic permission sets.
+
+There are several types of ACEs, including access-denied ACEs, which explicitly deny access rights, access-allowed ACEs, which allow access rights, and system audit ACEs, which are used in SACLs to generate an audit record when the trustee attempts to 
+exercise the specific access rights. It is important to know that access-denied ACEs always take precedence over access-allowed ACEs, meaning that if a subject is part of a group that is explicitly denied access, they will not be able to read the file, 
+even if their user account is given explicit allow access.
+
+One potentially confusing part of Windows permissions is the idea of permission inheritance. When a child object is created it inherits the properties of the parents, and the children and parents remain linked. Whenever a parent’s permissions are changed, 
+the children are updated to have the same permissions as well. This can be confusing since individuals may not be aware of changes to the permissions of the parent, and may lose permissions in the child as a result.
+
+Tokens
+One interesting technique that is used in Windows access control is the concept of a token. A token can be used by a program to adopt a set of permissions from another user. One can think of this like setuid or setgid in Linux, but with more granularity. 
+In order to discuss this in more detail we first must discuss the idea of a security descriptor. A security descriptor is the set of information required for the authorization of access. It consists of the ACLs associated with an object, as well as ownership 
+information, group information, revision numbers, etc. Tokens, on the other hand, are information about who a subject is authenticating as for the purpose of an access request. In other words, when a process uses a token it is using the security attributes 
+of another subject. There are four types of tokens, anonymous, identification, impersonation, and delegation.
+
+Android
+Though laptops and desktops still play a large role in our lives, there is no doubt that a growing number of digital interactions and operations are occurring through a different device: the smartphone. Though this is not a mobile security course, some 
+basic understanding of smartphone access control can help us understand how different usage patterns can affect access control.
+
+In many cases1, the concept of shared, multi-user end-user machines is beginning to vanish and is being replaced with single-user machines such as personal laptops or smartphones. This means that instead of applying access control to ensure that one user
+ cannot read the files of another, access control mechanisms can be implemented with a different focus: sandboxing applications, and ensuring that one process cannot access the information of another. In the following video we will explore how Android 
+ does access control, and the technical details the Android architecture. We will see how the Android architecture, depicted above, has a similar design to the layered concept of "rings" discussed earlier, but we will also learn about the drawbacks that 
+ come from having a large amount of privileged code.
+
+Android Access Model
+As mentioned previously, single-user devices have a different access-control focus than multi-user devices. Assuming that a device has only one user allows the access control mechanisms to focus on isolating applications from each other, called 
+sandboxing. Ans shown above, the way that this works in Android is that each application has its own unique uid, and communicates with data or resources on the system through a reference monitor and through Android middleware that eventually 
+translates down into a Linux kernel. In the following video we will explore how this works, and the implication it has for the system.
+
+Android Security Model
+The Android manifest file allows developers to define an access control policy for access to components

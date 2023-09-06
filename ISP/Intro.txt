@@ -1,0 +1,58 @@
+Lesson 1: Intro to Information Security and Privacy
+
+1.2 Threats, Vulnerabilities and Attacks
+A threat to a system is any potential occurrence, malicious or otherwise, that can have an adverse effect on the assets and resources associated with the system.
+
+A vulnerability of a system is some characteristic that makes it possible for a threat to occur.
+
+An attack on a system is some action that involves exploitation of some vulnerability in order to cause an existing threat to occur. 
+
+Types of Threats
+As mentioned in the video above, there are four main types of threats that can occur. These threats types are disclosure, deception, disruption, and usurpation. Here we define these threat types to make reviewing and referencing these definitions more convenient.
+
+Disclosure: unauthorized access to information
+A circumstance or event whereby an entity gains access to data for which the entity is not authorized.
+
+Deception: acceptance of false data
+A circumstance or event that may result in an authorized entity receiving false data and believing it to be true.
+
+Disruption: interruption or prevention of correct operation
+A circumstance or event that interrupts or prevents the correct operation of system services and functions.
+
+Usurpation: unauthorized control of some part of a system
+A circumstance or event that results in the control of system services or functions by an unauthorized entity.
+
+1.3 Security Mechanisms
+Confidentiality is the prevention of unauthorized disclosure of information.
+
+Integrity is the prevention of unauthorized modification of information.
+
+Availability is the ability to withstand unauthorized withholding of information or resources.
+
+A security policy is a statement that partitions the states of a system into a set of authorized or secure states and a set of unauthorized or non-secure states.
+
+A secure system is a system that starts in an authorized state and cannot enter an unauthorized state.
+
+A breach of security occurs when a system enters an unauthorized state.
+
+A security mechanism is something that enforces your security policy, either in whole or in part. Different security mechanisms contribute to the security policy in different ways. Some security mechanisms contribute to the 
+enforcement of the security policy by prevention, meaning that they ensure that an aspect of the policy cannot be violated. Other security mechanisms contribute to the enforcement of the security policy by detection, or determining when the policy has 
+been violated. Last, other mechanisms contribute through recovery, or being able to revert back to a secure state after the policy has been violated.
+
+An organization can have many different security mechanisms, such as hardware and software controls, physical controls such as card scanners to open doors or gates, and cryptography and cryptographic primitives. Some of these security mechanisms will be 
+explored in more detail later in the class.
+
+Trust is a tricky concept with many definitions, but in this course we will define trust as the expectation that arises within a community of regular, honest, cooperative behavior based on commonly shared norms
+
+So when we say we trust a mechanism, we are not actually trusting that mechanism. Instead, we are trusting the vendor that created that mechanism, and we are trusting them because of a common set of norms that we share with them. Those 
+norms include the concept that a security mechanism should protect data, not put it at more risk. Therefore we expect that the mechanism was created honestly because the developers were adhering to that norm. More, we make these trust decisions because 
+we have reason to believe that our trust will be violated by other parties. We trust the security mechanisms to protect us against parties that we believe will violate the shared norms, or, more plainly, parties we distrust.
+
+Laws and Regulations: Depending on the industry an organization is in there may be many laws and regulations they must adhere to in the protection of their employee and customer data.
+
+Risk Analysis or Assessment: A risk analysis or assessment analyzes what can go wrong, how likely it is to happen, what the potential consequences are, and how tolerable the identified risk is.
+
+Cost-Benefit Analysis: A cost-benefit analysis analyzes the benefits of the implementation or a security policy or technology and the associated cost to see if the benefits will outweigh the implementation cost.
+
+Human Issues: Usability: If we try to worry only about security, we can make systems unusable or difficult to use for the users. Therefore organizations may want to prioritize mechanisms that are easily used by people within the organization.
+

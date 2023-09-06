@@ -1,0 +1,81 @@
+Lesson 6: Authentication
+
+This process is called authentication, and it is the act of proving our identity to another participant
+
+Conceptually, authentication follows a 3 step challenge-and-response process. In the first step, the client claims an identity. Usually this is done by supplying a username, as we are all familiar with. After the username is supplied the remote server 
+will respond with a challenge, often times a request for an agreed-upon password. The user then supplies the proof, which in most cases is the secret password.
+
+6.2 What You Know
+Nudging Users Towards Better Passwords
+
+Lessening User Burden with Password Managers
+Enter the password manager. A password manager is a piece of software that generates and stores strong passwords, and encrypts them with a key derived from a single password that the user must remember.
+
+Graphical Passwords
+Instead of providing users with a simple prompt to enter a password, we show them an image or set of images. They need to then interact with these in the proper, predetermined way to prove their identity.
+
+ Perhaps unsurprisingly, many people from similar cultures choose similar ways to interact with prompted photos, giving attackers a way to predict user behavior and attempt to attack graphical passwords.
+ 
+ 6.3 Biometrics
+ Enter biometric authentication. This type of authentication does not rely on something the user knows, but rather something the user is.
+ 
+ Biometric System Errors
+ As we have discussed, biometric authentication is different from password authentication in many ways, one of which is that you are not looking for an exact match on the stored authentication data, but rather something that is similar enough
+ 
+ Comparing Biometrics
+ physical biometrics and behavioral biometrics.
+ 
+ Multimodal Biometrics
+ 
+ 
+ Protecting Biometric Templates
+ Unfortunately many companies had decided to deal with this by encrypting templates and decrypting them as needed, but as we have discussed in the password storage video, this can be an issue.
+ 
+ Behavioral Biometrics
+ 
+ 6.4 Multifactor Authentication
+ 
+ 6.5: How Passwords are Cracked
+ 
+ 6 lowercase characters: 308 million possible combinations
+Cracking online using web app hitting a target site with one thousand guesses per second: 3.5 days.
+Cracking offline using a laptop w/ GPU (one billion guesses/second): 0.28 seconds
+Cracking offline, using cloud resources (one trillion guesses per second): 0.0000224 seconds
+
+8 characters (letters, numbers, symbols, etc.): ~10 quadrillion possible combinations
+Cracking online using web app hitting a target site with one thousand guesses per second: 317K years.
+Cracking offline using a desktop w/ GPU (one billion guesses/second): 107 days
+Cracking offline, using cloud resources (one trillion guesses per second): 2.58 hours
+
+Commonly Used Passwords 
+As you look through the most commonly used passwords on several sites below, think about your why people choose these insecure passwords.
+
+Password Reuse 
+About 20 percent of compromised credentials, exposed via hacks on other service providers, match Microsoft Account logins due to password reuse. 
+
+# of Passwords by User
+This table shows the results of a study on how unique passwords are on some common sites.  You will see that each site had many less passwords than users!
+
+Key Management & Kerberos
+Enter Kerberos, a protocol used to authenticate people on a network based on tickets.
+
+A closer look at Kerberos
+So how does Kerberos work? Kerberos relies on a trusted key server, which provides centralized third-party authentication in a distributed network. The access control based on this key server may be used for access to each computing resource in the network, 
+and in either a local or remote network. Kerberos uses a key distribution center, or KDC, which contains a database of principles, which are customers and services, and encryption keys. More specifically, the KDC provides an authentication server (AS) and 
+a ticket-generating server (TGS). The KDC provides non-corruptable authentication credentials called tickets (or sometimes tokens).
+
+Initial user authentication
+The process begins when a registered user requests an initial ticket from the authentication server (AS). The AS then sends to a ticket granting service (TGS) the ticketing information, and returns a ticket generating ticket (or TGT) to the user. The user
+ then contacts the TGS and supplies this TGT, as well as the entitiy that the user wants to contact (like a file server, for example). The TGS will respond with a ticket that the file server while recognize as valid. In order for this to work, the TGS needs
+ to be aware of all of the resources available on the network or in the domain.
+ 
+ Attacks that Kerberos Prevents
+Kerberos protects against quite a few attacks. As an authentication method, Kerberos prevents  imposter attacks, since it uses the user's secret key as proof of identity. In addition, Kerberos prevents eavesdropping and man in the middle attackers. This 
+is because sensitive information is never sent on the network unencrypted, and the only information that touches the network unencrypted is information that's potentially publicly known. In addition, only valid users can generate needed output (such as 
+answers to challenge messages), based on their secrets. Finally, Kerberos protects against replay attacks due to things like timestamps and lifetime fields that are present in tickets.
+
+
+Kerberos Problems
+Like everything else, Kerberos has its flaws. Unfortunately there is a single point of failure in the KDC. If the KDC is unavailable, you cannot log into services on the network. Additionally, there can be problems with time synchronization. Since tickets
+ only last a certain amount of time, if the time synchronization is off users may not be allowed into a resource they should be able to get into. This can be minimized with NTP, but cannot be solved completely.
+

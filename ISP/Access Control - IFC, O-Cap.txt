@@ -1,0 +1,172 @@
+Lesson 8: Access Control (2): IFC, O-Cap 
+
+8.1 Capability Based Access Control
+
+In the last lesson we discussed various methods and techniques for access control across different operating systems, and described differed techniques for storing access control information, including access control matrices (ACMs) and access control 
+lists (ACLs). In this lesson we will continue with the theme of access control, starting with the idea of capabilities.
+
+So far when discussing access control we have taken a look at a given object and asked ourselves the question "which subjects can access this, and how?" However, when discussing capabilities we will flip the context of this question around, 
+and instead consider a subject. When looking at a subject we will begin to ask "What can this subject access, and how?"
+
+Access Control Lists vs. Capabilities 
+In ACLs the system must authenticate the source of a request before it can determine authorization; to see if access to an object is valid the system must first see if the subject is on the list of allowed subjects before a decision can be made. 
+In capability based systems, however, authorization can be done without determining the identity of the subject that wishes to access the object; instead, the subject passes along some proof (given by a trusted party) that they have the permission to
+ access some object to the system. These differences have some implications for how access control can work.
+
+The first implication to consider is the narrowing of permissions when spawning children processes. Under ACLs, each child a process spawns has the same uid as the parent process. Thus, the child has the same access as the parent, even if it only needs
+ a subset of these permissions. To narrow the permissions of the child would require a call to setuid, which is a messy and complicated process. On the other hand, in a capability based system passing on a subset of capabilities is extremely easy: the 
+ parent process simply needs to pass to the child the "proof" that it has that it is allowed to access a resource. If the child does not need to access a given resource, the parent does not need to pass along the "proof" associated with that resource.
+
+Delegation and Revocation 
+The discussion above can be seen more generally as an issue of delegation. Under capability-based systems it is easier to delegate either all or some of your responsibilities to other entities, be them child processes or different processes all together. 
+However, there is a flip side to this story. Though capability based systems are better at delegation, revocation of already-granted permissions is very difficult to do unless a large amount of book-keeping is done. If a system does not remember which proofs
+ it provided to which users, how can it instruct the reference monitor to deny certain proofs from a potentially compromised account? Doing this in ACLs, however, is very easy. Since access is dependent on identification, if a subject attempts to access an 
+ object that they are no longer allowed to access, the reference monitor will be able to detect and stop this immediately.
+ 
+ Amoeba OS Mechanisms 
+As we had discussed in the previous video, capabilities are especially good for distributed environments, where constant authentication of a subject would be a large burden on the system. In this section we will take a look at a distributed OS called Amoeba, 
+and how it used capabilities to allow for access control in a distributed environment.
+
+Amoeba Features
+Ameoba was a distributed operating system that worked on a series of computers that were connected via a network. When a new process was started, it could start on a different machine entirely without the user even being aware of which machine his or 
+her process was running on. However, constant authentication on different machines in this environment would be burdensome and would slow the system down, but access control still needed to be performed. Instead, Ameoba OS used capabilities to avoid this 
+issue. Each object in Ameoba OS resides on a server. To perform an operation on an object, a subject would send a message to the server, which would contain the proof of capability, the object, and the operation that the subject wished to perform, as well
+ as a check to ensure that capabilities could not be modified.
+
+Amoeba Capabilities
+Now that we know some general information about Amoeba, we can begin to jump into some of the technical details. The most important part of this system from a security perspective is how it handles capabilities, and how those capabilities can be verified 
+while remaining unforgable. The way this works is that when a server creates an object, it returns the owner capabilities to the owner. All of the permission bits on the owner capabilities are set to one, meaning everything is allowed. Then it generates a 
+check field which contains a random 48-bit number that is stored server-side and sent to the owner.
+
+When the owner wants to grant capabilities for an object to another subject, they can set some of the rights bits to zero, and calculate a new check field. The server can verify the rights and the check field. Without the owner capability, you cannot forge 
+a derived capability. But how does this work?
+
+Well, the secret is in the check field. When the owner creates a new capability ticket, they generate a new check field using the new rights, XORed together with the old check field using a one way hash function. Said more formally:
+
+checkn = H(checkn-1 XOR rightsn)
+
+The owner can then send this new rights string (rightsn) and the new check string (checkn) over to the subject they want to grant access to. That subject can then send it to the server, who has the old check field. The server can then XOR the new rights
+ string with the old check field, and hash that value. If it matches the new check field, access is granted.
+
+8.2 Custom Reference Monitors
+As a reminder, a reference monitor is a piece of software that sits between a subject and the object it wants to access. It takes as input a policy and a request for an object and decides to grant that request or reject that request. This process is shown 
+graphically below.
+
+As a reminder, reference monitors must always sit between the subject and the object they want to access. If the subject has a way around the reference monitor, the reference monitor becomes pointless.
+
+In general, we want our reference monitor to be able to make as fine-grained decisions as possible when it comes to access. Coarse-grained rights can lead to granting too many permissions, which is a violation of the principle of least privilege. So
+ which system allows for easier granting of fine-grained permissions?
+ 
+8.3 Web Browsers
+Web browsers are different from most other normal programs. Because web browsers are meant to take in resources from remote, untrusted areas of the Web and render or run them on the local machine, access control was a central issue to creating Web browsers.  
+In many ways we can think of a web browser as being analogous to operating systems. In the same way that operating systems have system calls to interact with trusted code, the web browser uses the DOM to allow subjects to interact with different web content.
+ In the same way that operating systems manage storage on the disk, and allow or disallow access based on certain policies, the web browser has local storage in cookies, and allows or disallows access to cookies based on certain policies we will learn about 
+ later.
+
+Chromium Security Architecture
+As mentioned in the video, Chromium has an interesting security architecture compared to other browsers. The browser has a kernel, which is trusted code that is considered privileged, and runs with the full rights of the user that is running the browser.
+ Each tab is run in a rendering engine, which is sandboxed and can run up to 20 processes. If a rendering engine crashes, it only affects the tab(s) that were relying on it. In addition, browser plugins are run in their own process, but are given the full 
+ privileges of a browser, almost like a device driver for the browser.
+ 
+Chromium Threat Model 
+As mentioned in the previous video, Chromium sandboxes the render engines and plugins so that when one has issues, these issues don't bleed over to the rendering of other sites. However, this is not the only protection Chromium has. In this video
+ we will learn about how Chromium uses capabilities on Windows to minimize what a rendering engine process can do, effectively making it that if the rendering engine is compromised it can not perform too many negative actions on the machine.
+
+Leverage of OS Isolation
+As mentioned in the video above, the sandboxing done in Chromium leverages four OS mechanisms. On windows, these include a token with restricted rights, the Windows job object, the Windows desktop object, and integrity levels. Specifically, the rendering 
+engine adjusts the security token by converting SIDs to DENY_ONLU, and adding a restricted SID, and adjusting the token privileges. The rendering engines then run in a Windows job object that restricts the ability to create new process, to read from or write
+ to the clipboard. It also runs on a separate desktop, which mitigates the lax security checking of some Windows APIs.
+
+Since the processes are sandboxed, data sharing between them becomes less trivial. The way data sharing works is that a broker has a Policy engine that feeds into an IPC Service. If the data that is going to be shared is acceptable under the policy, it sends 
+information to the sandbox IPC client, thus making data sharing possible, but still adhering to the policy
+
+Components of Browser Security Policy
+While sandboxing and access control are the mechanisms that keep the browser secure, they are only as strong as the security policy that protect. Browsers create interesting questions for security policy, since we are often running code from untrusted web 
+sites and entities that embed content on those web sites.
+
+Frame-frame relationships
+Recall that isolation can be done on a process level in an operating system, and on the frame level in a browser. However, like processes sometimes want to interact with each other on an operating system, we sometimes have frames that want to interact with 
+each other on the browser. There are a few ways that frames can interact with each other, but for the purpose of keeping it brief and focusing on parts of the security policy, we will discuss CanScript and CanNavigate.
+
+Imagine you have two frames, FrameA and FrameB. We say CanScript(FrameA, FrameB) is true if the policy allows FrameA to execute a script that manipulates arbitrary DOM elements of FrameB. We need to be very careful with the CanScript relationship, since 
+running arbitrary scripts on other frames can lead to compromise of accounts, unwanted actions, and other undesirable outcomes.
+
+The CanNavigate relationship is a little different. One important element of a frame is its origin, that is, where it came from. Some security mechanisms rely on the origin in order to make access control decisions. So, being able to change the origin of 
+another frame is something we would want to do only in the most rare of circumstances. For this, we have the CanNavigate check. We say CanNavigate(FrameA, FrameB) is true if FrameA is allowed to change the origin of content for FrameB.
+
+In addition to the frame-to-frame relationships above, a browser also needs to check how a frame can interact with a principle like storage through cookies. Imagine a frame called F and a site called S. Sometimes the frame should be able to read or write 
+cookies from the given site. Sometimes it should not. In order to handle this, we have the ReadCookie and WriteCookie checks. These are fairly intuitive, but formally we say that ReadCookie(F, S) is true if the Frame F is allowed to read cookies from the 
+site S. We say that WriteCookie(F, S) is true if we are allowed to write cookies for site S from frame F.
+
+Good Design Decisions
+There are many good design decisions that were made when developing Chromium. Primarily, Chromium decided to follow the principle of least privilege, both to sandboxed code and to the code that controls the sandbox. Sandboxes, and the code inside them, were
+ given minimal privileges to do what they needed to do. Part of the reason for this is because of a good assumption: that code that's running in the sandbox is malicious code. Besides some early code to set up the sandbox, code that starts executing from the 
+ moment the untrusted code arrives should be considered to be malicious. Following this assumption, it is only natural, then, that the principle of least privilege be observed to avoid further compromise.
+
+In addition to the privilege of least privilege, the development team of Chromium decided not to re-invent the wheel, and instead let the operating system apply its security to the objects it controls. In addition, it created some application-level objects 
+that have a custom security model, but they did not extend the OS kernel with a different security model.
+
+In addition, Chromium attempts to be nimble. The sandbox is designed to impose near-zero performance impact, but accepts performance penalties for exceptional cases when a sensitive resource needs to be handled in a controlled manner. This is aided by proper 
+use of the OS security mechanisms.
+
+Last, Chromium does not attempt to achieve security by needlessly emulating. Emulations and virtual machines don't inherently provide security by themselves. Instead, Chromium provides sandboxing that does not rely on code emulation, translation, or patching 
+to provide the security desired.
+
+8.4 Information Flow Control 
+One proposed system of access control is the thought of Information Flow control. The idea of this is very simple. Imagine we have some sensitive information like a credit card number C. We want to be able to share that credit card number C with entities 
+that need it, such as a store S, but we also want a guarantee that the entity we share it with will not then share it with other untrusted entities, or accidentally leak it to other untrusted entities, like a data broker B. Under information flow control,
+ we would share the information with S freely, without constraint. However, we would then monitor all communications coming from S to any other entity, and ensure that C or information about C are not sent over to other entities. Thus, using this monitoring
+ we get an assurance that the information has not been shared to an untrusted party.
+
+This can be done by tagging the data C and setting rules that we expect S to not violate. For example, we can say that S is not allowed to let C be transmitted on the network. We can then search for this tag among network communications and raise an alert 
+should we find it, and block this communication.
+
+Now that we understand what information flow control is, we may have some questions about its practicality. How can one ensure that all communication of information is being monitored? Are there other ways that attackers can pass messages besides the 
+content that exists in a message? In this video we will reiterate the concept of information flow control, then focus on its limitations in practice.
+
+Data Labels
+Now that we understand the basics of information flow control, let's take some time to dive into one of the important aspects of the system: labeling data.
+
+In order for information flow control to work, we need to label each piece of data to indicate permitted information flows, like where data is from, and where it's allowed to flow to. This labeling specifies a set of policies. Among the things these policies 
+address are confidentiality constraints: given a piece of data, who may read it? A label like {Alice: Bob, Eve} specifies that Alice owns a given set of data, and Bob and Eve are permitted to read it. A label such as {Alice: Charles; Bob: Charles} specifies 
+that this data is jointly owned by Alice and Bob, but only Charles may read it.
+
+Another aspect of the labeling of these policies are the integrity constraints. This seeks to address the question who may write this data? A labeling like {Alice :: Bob} means that Alice owns the data, and Bob is permitted to change it.
+
+During computation, an entity can rewrite their own part of the label. For example, let's say Alice (A) and Bob (B) own a piece of data. Originally Alice specified that Retailer 1 (R1) and Retailer 2 (R2) can access this data. Bob only specified Retailer 
+2 (R2). However, Bob has found a new favorite store, Retailer 3, and wants to add this retailer to the list of entities that can read this data. Bob can then rewrite his portion of the label, as shown below.
+
+Taint Analysis
+Though information flow control is not very usable for access control in practice, there different areas that use information flow control or techniques inspired by information flow control to solve some problems. One example of this is the field of program 
+analysis, which has a technique called taint analysis. In taint analysis, all input controlled by a user is tagged, like data in information flow control systems would be tagged. This user input is then followed through the program to see what functions 
+(seen as entities as we discussed in information flow control) have gotten access to this user controlled information. This allows a team to see what potentially vulnerable functions deal with user information, and identify areas that may deal with malicious 
+input from a user. If a tagged piece of user supplied information is passed to a function without first being sanitized, this is considered a vulnerability.
+
+8.5 Trusted Computing
+Imagine that you give your phone to your friend, presumably so your friend can use the phone for an agreed upon purpose. However, you want to ensure that your friend cannot perform certain actions on your phone. For example, you may not want to allow your 
+friend to install a new operating system on the phone, or download software from a specific app store. How can you ensure that your friend can't do that while they are in possession of your phone?
+
+Enter the idea of Trusted computing. Trusted computing is the idea that some aspects of the system give you reason to believe that a property of the system will be upheld after the system has left your control. One example of this is ensuring that software
+ updates only come from specific domains, or are only signed by certain keys. Another example is ensuring that code that runs on the machine is developed by one of a small list of approved developers or development teams. Perhaps you want to ensure that the 
+ machine will work only during a certain time period, or only for a certain amount of time. Without trusted computing, we assume that once a machine leaves our control we no longer have the ability to make guarantees about the system. We believe that they 
+ system is entirely under the control of the person who currently operates and uses the device.
+
+You may be thinking "But how does this work?" Typically, trusted computing works with the help of special hardware called a trusted platform module, or TMP. This piece of hardware is inaccessible to attackers1, and stores some special keys that are not 
+accessible by the user. The machine can then use this to perform operations like remote attestation, which we will discuss later.
+
+Why Do We Need a Trusted Computing Base?
+As the video above has demonstrated, there are a lot of potential negative uses for trusted computing. Businesses could use trusted computing to ensure that only certain types of print cartridges are used, or that software from their competitors cannot be 
+installed. On a more philosophical level, the idea of trusted computing threatens a person's autonomy over the property they own. But can any good come out of this?
+
+One of the positive things that trusted computing can give us is the concept of remote attestation. Remote attestation is when the trusted computing platform attests to the authenticity and integrity of the software in the system to a party that does not 
+currently control the system. This may be useful to prove to a party that the software has not been replaced with an older, vulnerable version, or that the software was not replaced with a Trojan that looks like it. Though this is useful, if the software 
+contains vulnerabilities it does not stop an attacker from taking advantage of those vulnerabilities to inject and run code in the system. It only attests to the fact that a certain program and a certain version of the program is being run.
+
+Imagine you are on vacation, and you need to use a computer. Unfortunately you do not have any devices with you, or they are not usable. You find an Internet cafe that offers the use of computers for a limited amount of time. Will you use it for banking?  
+Will you use it to manage your stocks?  Will you use it to access your email?  Will you use it to make credit card purchases?
+
+I think we can all agree that entering our secret information like passwords and credit card numbers on someone else's computer that is open to use by members of the public is a bad idea. But what if there was an attestation that the machine was only running 
+certain, trusted software and nothing else? What if the PC could prove that all processes running on the machine were legitimate? Would you use it then?
+
+Our first intuition might be to say yes, but there are other problems to consider as well. Imagine a hardware keylogger attached to or built into the keyboard. Imagine other attack vectors like shoulder surfing. This activity is still risky, but at least we 
+can rest assured that the software on the PC is safe to use, since the PC could attest to it.

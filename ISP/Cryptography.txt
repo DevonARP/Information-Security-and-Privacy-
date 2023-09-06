@@ -1,0 +1,60 @@
+Lesson 5: Introduction to Cryptography
+
+5.1 Cryptography
+Currently, cryptography refers to the study of mathematical techniques to achieve various goals in information security, such as confidentiality, authentication, integrity, non-repudiation, etc. The word does not refer to the means of providing 
+information security, but rather a subset of techniques
+
+Closed Design (as in military communication during the World War I/II)
+When we work with closed design we are deciding to keep the actual algorithm used a secret. However, as we have studied earlier, secrecy is not the same as security, and it is very possible (and even probable) that details about the algorithm will leak over 
+time. This is why proprietary design of crypographic algorithms is considered insecure. If people cannot see it, it cannot be audited to know whether or not it is safe.
+
+Open Design (Kerckhoffs' principle)
+The better solution is to have an open design. To do this we can have the algorithm rely on a secret input, called a key, that is required for encryption and decryption. This allows us to publish the algorithm without allowing anyone to decrypt data that has
+ been encrypted with this algorithm previously. This is considered good practice, since it allows many individuals and organizations to audit the code or algorithm and report issues they find back.
+
+To defend against a brute force attack, the key space, or the number of possible keys, should be very large. This will be discussed in more detail as we continue on, but it is important to realize that computers speed up over time. What is 
+considered very large today may not be so in 10 years, so these parameters will change over time. Our goal should be to make it impractical for the adversary to be able to check every single key, and to adjust whenever the attack speeds up.
+
+Symmetric/Private Key
+The first type of encryption we will discuss is symmetric key cryptography. In this type of cryptography the sender and the receiver share a common secret key that is known to only them. Encryption and decryption are then performed using this single key
+
+Symmetric / Private key model 
+
+Private Key Encryption: Main Functions
+As we could see in the previous video, a cryptographic system is much more than just an encryption algorithm. In symmetric cryptography the cryptosystem is composed of at least three algorithms, each listed below.
+
+A Key Generation algorithm KeyGen(L) -> K where L is a security parameter that represents the length of the key.
+
+An Encryption algorithm Enc(K,M) -> C that takes a key K and a message M and returns a ciphertext C.
+
+A Decryption algorithm Dec(K,C) -> M that takes the same key K and a ciphertext C and returns a message M.
+
+Caesar Cipher (or Shift Cipher)
+As discussed in the video, the Caesar cipher is one of the earliest known and simplest ciphers. It is a type of substitution cipher in which each letter in the plaintext is 'shifted' a certain number of places down the alphabet. 
+Details on how this algorithm works is included below.
+
+Symmetric / Private key Ciphers and their applications
+There are many symmetric key ciphers that exist today. Here is a list of them, along with where they are used.
+
+IDEA (used in PGP)
+Blowfish (password hashing, which is discussed later, in OpenBSD)
+RC4 (used in WEP), RC5
+Double DES, Triple DES
+SAFER (used in Bluetooth)
+AES (pervasive)
+
+5.2 Asymmetric Cryptography
+
+
+5.3 Cryptographic Hashes
+Requirements of cryptographic hash functions
+
+Can be applied to data of any length.
+Output is fixed length.
+Relatively easy to compute h(x), given x.
+Is deterministic, meaning given the same x we get the same h(x).
+Infeasible to get x, given h(x). This is called the one-wayness property.
+Given x, infeasible to find y such that h(x) = h(y). This is called the weak-collision resistance property.
+Infeasible to find any pair x and y such that h(x) = h(y). This is called the strong-collision resistance property. 
+
+5.4  Basic Concepts of Public Key Infrastructures (PKI)

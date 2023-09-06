@@ -1,0 +1,68 @@
+Lesson 2: Security Design Principles
+
+2.2: Fundamental Design Principles
+Four Fundamental Design Principles
+In this section we will be considering four design principles that we consider fundamental, and that, while not related to security, do aid with computer security.
+
+1. Principle of open design
+
+The concept of the principle of open design is simple: get others to comment on your design. Perhaps the motivation of this idea is best summarized by Linus Torvalds:
+
+“Given enough eyeballs, all bugs are shallow”
+
+2. Principle of sweeping simplifications
+
+The motivator behind the principle of sweeping simplifications, also called the KISS1 principle, is easy to understand: the less complicated something is, the less likely it is that someone made an error in its design or implementation. Therefore we should make 
+designs and interactions easy and simple, so this way it is easy to understand and easy to prove that it is safe. By extension of this principle, it is easy to see that complexity is the enemy of security.
+
+But what if we have to design a system that is inherently complex in order to achieve a goal? This is where layering comes in. The idea is that we split our design into layers, and each layer only communicated with adjacent layers, and preferably having only 
+one role or capability. We can then apply the principle of sweeping simplifications to each layer, and keep the layers simple. We therefore form a hierarchy of layers, each that are easy to audit and analyze.
+
+1: KISS principle: Keep It Simple Stupid!
+
+3. Principle of design for iteration
+
+In many organizations, priorities evolve over time. Sometimes there is a change in the focus of a software project. Sometimes attackers demonstrate new attacks that you have not considered, but that now need to be plugged. The principle of design for iteration 
+is a way to address these situations. It comes down to one simple idea: design your software to ensure you can change parts of it in the future. Abstraction and modular design are powerful tools for applying this principle, and should be considered for 
+all software.
+
+4. Principle of least astonishment
+
+Ultimately, software is written to solve a problem for a user. Therefore, when we are designing a system, we must have the user in mind and create an experience that follows what they user thinks should happen in a given situation.
+ When our software encounters an error, for example, we should present that error in a way that makes sense to the user, and does not seem out of place for the software that they are using.
+
+In the video below we will explore some of these fundamental design principles through examples to get a better understanding of how they can be applied during software development.\
+
+2.3 Principles of Secure Design
+
+Principle of minimizing secrets
+This principle states that secrets should be few, and should be easily changeable.
+
+Principle of complete mediation
+Put more generally, all access to objects should be checked to ensure that the access is allowed.
+
+Principle of fail-safe defaults
+This default value should be assigned at the time of user creation, and should only be changed if absolutely needed (see the next principle). The idea here is to "fail-closed," meaning fail in a way that does not compromise the data and causes 
+inconvenience, rather than "fail-open," where our method of failing allows the attacker to achieve some objective.
+
+Principle of least privilege
+This principle states that privileges should only be granted such that an individual can perform their duty, and nothing more
+
+Principle of economy of mechanism
+Therefore, the principle of economy of mechanisms states that security mechanisms should be as simple as possible
+
+Principle of least common mechanism
+This principle states that mechanisms used to access resources should not be shared.
+Of course this principle causes problems. It is very restrictive because it limits sharing, and if followed in every case, can be very expensive
+
+2.4: Security, Privacy, Ethics and Legality 
+Considering Ethics/Legality
+Security, Privacy, Ethics, and Legality
+
+2.5: How Passwords are Cracked
+
+2.6: How to Protect Passwords?
+Use Different Per-Site Passwords
+Password Managers 
+Security Ninjas
+Choose a good password 

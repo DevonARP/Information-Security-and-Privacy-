@@ -1,0 +1,278 @@
+Lesson 12: Cryptocurrency
+
+12.1 History of Bitcoin
+Please watch the video below.
+
+Centralized vs Decentralized Currency
+This image shows a centralized model on the left and a decentralized model on the right.
+
+History
+A whitepaper posted online in 2008: “Bitcoin: A Peer-to-Peer Electronic Cash System” by Satoshi Nakamoto described a distributed cryptocurrency system not regulated by any government.
+The system went live on January 2009.
+
+Now “Satoshi Nakamoto” is only associated with certain public keys on Bitcoin blockchain.
+
+She/He/They was/were active on forums/emails/etc. till 2010.    
+Currently there are 1326 cryptocurrencies (https://coinmarketcap.com/)
+
+Bitcoin in a Nutshell
+What is a bitcoin?
+A distributed currency exchange medium open to anyone to join.
+Utilize basic cryptographic primitives to control the money flow in the system.
+
+Main components
+Players: miners and clients
+Transactions: messages exchanged
+Blockchain: an append only log
+Mining: extending the blockchain
+Consensus: agreeing on the current state of the blockchain
+
+Making It Real
+No real identities are required, just a key pair.
+
+Usually the hash of the public key is the participant’s address.
+Losing the private key of a specific address means losing the coins associated to this address forever.
+
+Wallets take care of tracking coins, issue transactions, etc.
+Clients, or simple payment verification (SPV) nodes, are concerned with their transactions only.
+
+Do not mine or hold full copies of the blockchain.
+Miners, or fully validating nodes, track everything and mine.
+
+Players and Transactions
+Watch this video related to bitcoin's players and transactions.
+
+Virtual Coins
+Bitcoins are virtual coins that are used for payment transactions in place of tradional currencies issued by governments.  Bitcoains are digital tokens, or transactions, that can be spent by providing the signature of the coin.  There is no notion of accounts in bitcoin.  The blocks track the chains of transactions. Users can have applications called wallets that do the aggregation into an account transparently for the user.
+
+
+12.2 Blockchain, Mining, and Consensus
+Watch this video on blockchain, mining and consensus.
+
+Blockchain and Mining
+The blockchain is an append only log that contains a full record of all the transactions.  This is required to ensure a bitcoin cannot be double spent. Miners extend the blockchain by mining new blocks.  To add a new block the miners solve a proof-of-work puzzle.  In exchange the miners collect a monetary incentive each time they discover a block
+
+This image shows a blockchain where the header of each block has a hash of the previous block and a hash of the transactions in the block.
+
+Mining
+Mining is the process done by the miners to discover new blocks that are appended to the blockchain and store the transactions.
+
+Done through proof-of-work
+Needed to prevent Sybil attacks
+Miners solve a hash puzzle
+SHA-256(SHA-256 (new block header)) < Difficulty Target
+Difficulty is adjusted periodically
+Keeps the block generation rate constant, 1 block every 10 minutes
+Accommodates the increasing computation power of miners
+Mining rewards started with 50 BTC and halved every 4 years
+Now it is 12.5 BTC
+Total Bitcoin to mine is capped by 21 million BTC
+Now there are around 17 million
+ 
+
+Consensus
+Consensus is the process of miners agreeing on the proper blockchain. 
+
+Miners hold , hopefully, consistent copies of the blockchain
+Only differ in the recent unconfirmed blocks
+A miner votes for a block implicitly by building on top of it
+Mining power requirement handles Sybil attacks
+Forking the blockchain means that miners work on different branches
+Caused by network propagation delays, adversarial actions, etc.
+Resolved by adopting the longest branch
+
+This image below shows how the consensus process choses one fork of the blockchain.
+
+Main Problems & Potential Solutions
+Please watch the video below. 
+
+
+This image shows the problems with blockchain including: limited functionality, lack of true anonymity, the composition of the miners, security issues, and more.
+
+Supported Functionality
+Please watch the video below. 
+
+Bitcoin 
+Vision: distributed currency exchange medium with the virtue of simplicity.
+
+Supports Turing-incomplete scripting language.
+Tedious currency tracking model.
+ 
+Ethereum
+Ethereum is a newer cryptocurrency.  The vision for Ethereum is a transaction-based state machine, or a virtual environment EVM, that can execute distributed applications (Dapps). Unlike Bitcoin, Ethereum supports a Turing-complete scripting language.  This includes: global state, accounts, smart contracts, tokens, etc.
+
+Overview
+Proposed by Vitalik Buterin in 2013 and went live in 2015. Users can issue two types of transactions: message calls and smart contracts deployment. Miners mine new blocks and implement smart contracts for clients and pay gas to prevent DoS against miners.
+
+The blockchain contains:
+
+a full record of transactions,
+smart contracts code,
+and the global state of the network.
+Famously known to create new digital currencies on top of its platform called Ethereum Tokens.
+
+Mining and Consensus in Ethereum
+Currently it adopts a PoW based mining algorithm.
+Plans announced to move to Casper, a proof-of-stake based mining.
+Ethereum has higher block generation rate than Bitcoin, around a block every 16 sec.
+Does the longest chain concept still work?
+
+
+This image shows that with the higher block generation rate of Ethereum an attacker could create a fake chain the length of the real chain.
+
+Smart Contracts & Additional Features 
+Please watch the video below. 
+
+Smart Contracts
+Simply programs written in Ethereum scripting language deployed on
+EVM and run by the miners.
+The full code of the smart contract and its current state are public on
+The blockchain
+Once a contract is deployed, the contract owner cannot change its code, but
+he can ask the miners to destruct the contract (if it contains a function to do that) and deploy a new contract.
+Interacting with a contract is done by issuing transactions that 
+invoke its functions.
+Each miner over the network implement the code of a smart contract but only 
+one collects the gas cost: the one who mines the next block
+ 
+Additional Features for Free? 
+Please read the following articles
+
+Mining and Consensus
+Please watch the video below. 
+
+Bitcoin's PoW-Based Mining
+The mining process of Bitcoin is done to ensure a malicious user could not successful create a fake chain and get it accepted because the work would take too long.  
+
+There are several issue with the Bitcoin mining process:
+
+Waste of resources.
+In 2014 Bitcoin and Ireland had comparable electricity consumption [O'Dwyer et al., 2014].
+Do the miners do useful computation?
+How about the transaction throughput?
+How long does it take to confirm a transaction?
+ 
+Optimization Criteria
+This image compares the three primary alternatives to proof of work.
+
+Proof-of-Stake
+Proof-of-stake is an alternative to Bitcoins proof-of-work.  Proof-of-stake uses the stake the miners has in the mining instead of an artificial work process like Bitcoin.
+
+Goal
+Reduce energy consumption.
+
+Leader election is based on the amount of stake a miner holds.
+Must be done in an unpredictable way.
+
+How to elect a leader? Examples
+Global verifiable random function, Algorand [Gilad et al., 2017].
+MPC based coin flipping protocol, Ouroboros [Kiayias et al., 2017]
+Several issues
+Initial stake distribution.
+Usually, mined using PoW then switch to pure PoS.
+Nothing at stake attack.
+Financial punishments, checkpoints. 
+Wealth distribution.
+Proof-of-Storage
+Proof-of-storage is an alternative to Bitcoins proof-of-work.  Proof-of-storage uses the storage capacity shared by the miners instead of an artificial work process like Bitcoin.
+
+Different Flavors
+proof-of-space [Dziembowski et al., 2015],
+proof-of-spacetime [Moran et al., 2016], 
+proof-of-retrievability [Miller et al., 2014].
+Goal
+Lower energy consumption, disk space vs. computation.
+Useful mining algorithm.
+Construction
+Initialization phase, something like storage configuration.
+Execution phase, present proofs-of-storage to the system.
+Main Concerns
+Trade off between computation/storage [Moran et al., 2016].
+Outsourcing, Permacoin [Miller et al., 2014].’
+ 
+Byzantine Agreement
+Byzantine Agreement is an alternative to Bitcoins proof-of-work.  A Byzantine Agreement uses small committees of miners to perform the work on the next block.
+
+Simply it means: “Agree faster.”
+Goal: speed up transactions confirmation and increase throughput.
+Elect a committee to perform a Byzantine agreement on the next block.
+PoW, Byzcoin [Kogias et al., 2016].
+PoS and VRFs, Algorand [Gilad et al., 2017].
+In both transactions are confirmed in less than a minute
+
+This image shows the Byzantine Generals Problem.  The Byzantine General Problem is a condition of a computer system, particularly distributed computing systems, where components may fail and there is imperfect information on whether a component has failed. 
+
+But:
+
+Strong network connectivity assumption.
+⅓ of the mining power can be malicious.
+Scalability (i.e. number of miners).
+Distributed systems must cope with sabotage / failure of their constituents.
+
+12.3 Transaction Anonymity 
+
+Is Bitcoin Anonymous?
+Believed to be 
+Users are known by their public keys.
+To protect privacy create new key pair for each new transaction.
+Send the change to a new address each time.
+Look at how Bitcoin is described on this site: Wikileaks 
+
+No it is not... 
+Proved to be pseudo-anonymous:
+The blockchain is public, track the flow of transactions.
+Cluster Bitcoin addresses into entities, link them to identities and/or Bitcoin addresses posted by their owners on forums, etc., [Reid et al. 2014]
+Link this flow to users’ IPs [Koshy et al. 2014].
+Potential Solutions to Anonymity Problem
+Centralized mixers
+Break transactions linkability.
+Will the mixer return the money back? Will it forget the mapping?
+Distributed mixers
+e.g. Zerocoin
+Anonymous Cryptocurrencies
+Hide source, destination, and value.
+Zcash, Monero, etc.
+
+12.4 Security
+Security of Cryptocurrencies
+Sometimes referred to as stability.
+Relies on three components: transactions, blockchain, and the peer-to-peer network.
+
+Transactions 
+Stability of transactions validation rules.
+
+A blockchain is secure if it achieves the following properties 
+[Bonneau et al., 2015]:  Eventual consensus.  Exponential convergence.   Growth or liveness.  Correctness.  Fairness.  
+
+Peer-to-peer network 
+Its connectivity affects convergence, growth, and fairness in mining rewards.
+
+12.5 Incentive Compatibility, Mining Pools & Centralization
+
+Incentive Compatibility
+It is for the best of the miners to play by the rules.
+Sometimes referred to as majority compliance
+Bitcoin (and most cryptocurrencies) assume that
+as long as the majority of the mining power is in the hand of honest miners then the system is secure.
+Not always true
+Selfish mining allows an attacker in control of less than 30% of the mining power to undermine fairness [Sompolinsky et al., 2015].
+Outside attackers?
+Goldfinger attack. CoiledCoin was destroyed by Eligius (a Bitcoin mining pool).
+Eclipse attack.
+Mining Pool and Centralization
+The initial goal is to create a decentralized virtual currency exchange medium.
+Anyone is able to join the network and mine.
+Is this true?
+Mining pools, around 85% of the mining power is under the control of around 10 mining pools.
+
+12.6 Conclusion 
+Conclusions 
+Cryptocurrencies provide a disruptive work model.
+
+But also exhibit complicated relations between, financially motivated, untrusted parties.
+Great potential and huge arena of applications.
+
+However, deeper thinking is needed to assess when/where to apply.
+Are they just a hype that will fade away?!    
+
+Still provide an elegant proof of concept

@@ -1,0 +1,501 @@
+Lesson 10: Injection Attacks and Defenses
+
+10.1 Injection Attack and Defenses
+In the previous lectures we have talked a lot about attackers being able to take control of programs, or put their own code into programs or into memory on the machine. But how does this work, and if it is easy to do, how can we prevent it?
+
+In this lesson we will be covering injection attacks and defenses, focusing mostly on web applications but also taking a look at memory corruption. In the following video we will introduce these issues, then we will move on to the different attacks that 
+are popular at the moment.
+
+Open Web Application Security Project (OWASP) Top 10 (2021)
+There are a limitless number of attacks that can occur against systems, and many of them are unknowns. However, there does exist an organization that collects information about how popular attacks are in a given time. This organization is called the Open Web 
+Application Security Project (or OWASP) and it is a 501(c)(3) worldwide not-for-profit charitable organization focused on improving the security of software. They then take the data they collect and use it to compile a list of the top 10 vulnerabilities in a 
+given period of time.
+
+The last release of their top 10 list was this year, and contains a list of interesting attacks with three new categories, four categories with naming and scoping changes and some consolidation. Here is an image of the updates from the previous version in 
+2017:
+
+This list can be seen below:
+
+OWASP Top 10 (2021)
+Broken Access Control
+Cryptographic Failures
+Injection
+Insecure Design
+Security Misconfiguration
+Vulnerable and Outdated Components
+Identification and Authentication Failures
+Software and Data Integrity Failures
+Security Logging and Monitoring Failures*
+Server-Side Request Forgery (SSRF)*
+*From the Survey
+
+Some of these issues, such as broken access control and security misconfiguration, we already touched on in this class. In this lesson we will focus on Cross-Site Scripting (XSS) Cross-Site Request Forgery (CSRF), and Injection. In addition to studying these 
+flaws, we will look at securing update security with TUF.
+
+In the following video we will explore the concept of web security, and frame the problem by thinking about the implications of running untrusted website and advertiser code on your local machine. We will then discuss the various threat models that exist when
+ we discuss web security. By the end of this video you should have a good understanding of what topics we will cover in the remainder of this lesson.
+
+10.2 Same-Origin Policy
+
+Before we can discuss some attacks against web browsers, we first need to understand how web browsers work and how they attempt to isolate data and avoid malicious scripts. Perhaps the most important part of this is the same origin policy. The same origin 
+policy allows scripts contained in a first web page PageA to access data and resources in a second web page PageB only both web pages have the same origin. But what exactly is an origin, and why do we allow the browser to execute scripts anyway? These are 
+things we will be discussing in this section of the lesson.
+
+ 
+
+Browser: Basic Execution Model
+Before we tackle those questions, we first need to re-examine how browsers work. The browser is made up of a series of frames, which are more or less analogous to a window or tab. Each frame performs rendering, meaning it processes HTML and runs scripts to 
+display the page. These pages may involve more that text, they could include images, subframes, and more.
+
+In addition to just running during page load, scripts within a frame can be used to respond to events. These events may relate to user actions, such as clicking on an element (OnClick) or holding their mouse pointer over it (OnMouseOver). Other events may be 
+based on the current process of rendering, such as when the page first finishes loading (OnLoad). Some scripts may be timing based, relating to content that takes too long to load (setTimeout, clearTimeout).
+
+These scripts may end up in a page in many different ways. The first, and perhaps most obvious, is the JavaScript is inside of a
+This is not the only way, however. It is possible for external scripts to be used using the src attribute of a script tag. Two examples of this can be seen below. In the first example the website is loading another script from its own web server. In the second
+ example it is loading a script from a third party service.
+
+
+
+JavaScript scripts can also be included on a page as an event handler attribute. For example, consider a link that pops up a small greeting when you hover over it with your mouse. This can be achieved using the code below.
+
+http://www.invidio.us" onmouseover="alert('hi');">
+
+You can also include JavaScript as the target of a link, so when you click the link it alerts a message.
+
+Click me
+
+JavaScript Security Model
+It would be very unsafe if any script could execute at any time and modify anything. Therefore, we need some model for JavaScript to ensure that scripts only performed desired behaviors. To achieve this, each script runs in a sandbox with no direct access to 
+files, and with restricted access to networks. Users can grant additional privileges to signed scripts. These additional privileges could include UniversalBrowserRead/Write, UniversalFileRead, or UniversalSendMail. However, granting additional permissions 
+should never be done unless absolutely necessary. We must always follow the principle of least privilege!
+
+Same Origin Policy
+Now that we understand more about how browsers and scripts work, and how scripts are sandboxed, we are ready to discuss the same origin policy. As we stated earlier, a script can only read properties of documents and windows from the same origin. An origin is a
+ tuple of server, protocol, and port. So, if we loaded a page from https://example.com/three_facts_about_household_cats and a script wanted to run from http://example.com/advertisements.js, it would fail to run, since the protocol of the first request was http, 
+ and the request of the second request was https.
+
+As we will see there are many limitations with the same origin policy. One is that if the same server is hosting many unrelated sites on the same server, protocol, and port, these sites will be able to interacts with each other's data. Another important 
+limitation to note is that the same origin policy does not apply to library imports. So, the following javascript on a page would still load, despite the same origin policy:
+
+10.3 Cross-site Scripting (XSS)
+One of the common threats on the web is the idea of cross site scripting, or CSS. This occurs when a web site accepts input that is later rendered as part of the web page and sent to other users. If this can occur, an attacker can craft input to be executed 
+as a script when it arrives at the victim's browser.
+
+In the following video we will introduce the idea of cross site scripting. After the video there will be more text and examples that demonstrate how cross site scripting works, why it works, and how we can defend against it.
+
+Exploring XSS
+So now that we know a little more about cross site scripting, we can begin to explore how it works. The major vulnerability that allows XSS to occur is the server echoing unfiltered user input back to another client. Consider a website that takes search 
+requests from a user, embeds it in the URL, and then when they receive that url, places that search term in the returned HTML.
+
+The graphic below demonstrates how search terms can be taken from URLs, and reflected in content.
+
+What would happen if an attacker crafted a "search term" that contained malicious JavaScript code? As it turns out, when the browser receives the malicious JavaScript that was entered as the "search term," it renders it as JavaScript. This JavaScript could 
+do many malicious things such as stealing cookies, or attempting to record what you are typing and send it to a remote server. Imagine that an attacker crafted such a URL and posted it on their website. If they wanted to steal the cookies for a given site 
+they could write a "search term" that contains JavaScript that reads the cookie and sends it to a site they control. This is demonstrated in the graphic below.
+
+So What?
+You may be thinking "but why would a user click a link like this?" Unfortunately, spotting links like this is not so simple. The attacker can make the link appear benign by changing the what the link says to suggest that it's pointing somewhere benign. Or the 
+attacker can distribute the link via phishing, or via malicious advertising code. There are unfortunately many ways to fool a user into clicking an ad.
+
+You may also think "well, why does it matter if one site can steal another site's cookies?" Unfortunately, cookie theft can lead to disasterous effects. Cookies often hold session authenticators for a website, which would allow the attacker to pretend to be the
+ user they steal the cookie from. It may also contain other sensitive information that the site or the user may not want to leak. It also violates the idea of isolation: data for one site is meant to remain for that one site only.
+
+Other XSS Risks
+Even if you never click a link that looks shady, you may still be at risk for a XSS attack. In addition to the reflected type of XSS that we explored above, there is also a type of XSS called stored XSS, where a victim website stores user input and then 
+reflects it back at other uses. You can think of this as something like a comments section of a website. If a user supplied a "comment" that is actually malicious JavaScript, and that JavaScript is stored and sent back to other users, the other users will 
+execute JavaScript code controlled by the attacker.
+
+Unfortunately it gets worse. While cookie theft is bad, there is a lot more one can do with the arbitrary execution of JavaScript. An attacker can change the way the affected website renders for other users, such as adding a bogus password field, or making 
+it look like the user was redirected to a login page. This could lead to credential theft or other negative outcomes.
+
+In addition, this could cause users to connect to other websites. This may be to download more malicious payloads, or the script may even force the users browser to send an attack to another website.
+
+Unfortunately XSS can live in many different places, especially places with large amounts of user generated content. For more information on XSS attacks, read the link below.
+
+Read this article: How TweetDeck got hacked: the non-technical answer
+More on XSS on OWASP.org: Cross Site Scripting (XSS)
+
+Preventing Cross-Site Scripting
+Unfortunately, preventing XSS is not very easy to do correctly. The idea is that we need to prevent the injection of scripts into HTML, which is far from trivial. Though our fist intuition is to block the "<" and ">" characters, this unfortunately doesn't work.
+ There can be encoded inputs that get around this, and other elements of scripts don't require brackets. If one wishes to allow simple HTML tags, this becomes even more difficult.
+
+In order to do this correctly, all input must be sanitized before it ends up inside the HTML. In PHP, htmlspecialchars(string) will replace all special characters with their HTML codes. The single quote character becomes '. The double quote character becomes ",
+ and the ampersand character becomes &. In ASP.Net, the same feature can be called using the Sever.HtmlEncode(string) function call.
+ 
+ 10.4 SQL Injection
+ 
+ In the last section we learned about how attackers can inject JavaScript into a webpage in order to compromise the users of a website. In this section we will continue the theme of inserting malicious data into a website in order to achieve some objective. 
+ Unlike last section, however, in this section the attack we focus on executes on the victim website's database, not on a client's machine.
+
+Most times we search on a website we are actually interacting with a SQL database. This is a relational database technology that many organizations rely on for data storage, including the storage of sensitive information such as credit card data, stored 
+passwords (hopefully salted and hashed), customer data, and more. This offers a juicy target for an attacker, since much of this knowledge can be sold for a large price or reused in another type of attack.
+
+In the following video we will acquaint ourselves with the concept of the SQL Injection attack. In the text and graphics that follow we will discuss in more detail, and finally we will discuss how these attacks can be mitigated or avoided.
+
+Dynamic Web Application
+A SQL Injection attack won't work against any web page. In order for it to work, the website the attacker is communicating with needs to be using a database in order to perform some form of dynamic computation or presentation. The way this typically works is 
+that a web server and a SQL server sit on the same machine, though this doesn't need to be the case. The SQL server can sit on a different VM, or a different machine entirely, and these types of attacks will still work.
+
+In the general protocol, the user will issue a get or post request to the web server, then the web server will use some input that came along from those requests to access data from the database. Therefore, the user is influencing a part of the query that is
+ running on the database system. This process is depicted graphically below.
+ 
+ SQL Injection: Basic Idea
+Now that we understand the architecture we are assuming, we can begin to dive into the high level idea of the attack. First the attacker posts a malicious form. Rather than containing just text data as expected by the victim server, this form contains text 
+that can be interpreted as SQL code. This is demonstrated in step 1 below.
+
+The victim server will then take that input, put it into an SQL statement, and then send that over to the database server. This database server will not understand where the statement generated by the victim server ends and the user input begins. Therefore it 
+will execute whatever query it gets, even if it is not the query the victim server intended. This is shown in step 2.
+
+The results of the computation complete, and the database server will send the data back to the victim web server. The victim web server will then send the results received from the database server back to the attacker's computer. This is shown in step 3 
+below.
+
+SQL Injection Code Example
+Now that we understand how the attack works, let's take a look at some code. The code below is going to include a mix of PHP, which is a server scripting language with a C-like syntax, HTML, and SQL. PHP often intermingles static HTML with the web application's
+ code, so don't be confused when you see the two syntaxes together. Normally, this looks something like the code snippet below.
+
+<?php
+>
+Can embed variables in double-quote strings
+$user = “world”; echo “Hello $user!”;
+or $user = “world”; echo “Hello” . $user . “!”;
+Form data in global arrays $_GET, $_POST, …
+
+ 
+
+In addition to PHP and HTML, there may also be SQL mixed in. SQL is a widely implemented database query language. SQL is usually very distinct and easy to identify, and can look something like the following example.
+
+
+SELECT * FROM Person WHERE Username=‘Vitaly’
+INSERT INTO Key (Username, Key) VALUES (‘Vitaly’, 3611BBFF)
+UPDATE Keys SET Key=FA33452D WHERE PersonID=5
+
+All of these three technologies can exist on a page together. In the following code segment we will see some PHP code that executes a query without first filtering the user input. This code is very vulnerable to SQL injection attacks, so please do not write 
+code that looks like this!
+
+
+$selecteduser = $_GET['user']; 
+$sql = "SELECT Username, Key FROM Key " . 
+"WHERE Username='$selecteduser'";
+$rs = $db->executeQuery($sql);
+
+In this example, the user controls what's inside the parameter 'user.' Take a moment to consider what might happen if this user-controlled data contained  a SQL command.
+
+Web Page Authentication Example
+Now that we've seen what vulnerable code may look like, let's switch focus and take a look from the attacker's perspective. Imagine your goal, as an attacker, is to delete the entire database of users of somesite.com. You connect to their site, and the first 
+thing it asks you to do is to log in.
+
+You are presented with a log in prompt like the one below. The usual thing to do is to fill in account information and attempt to log in.
+
+Entering the username and password demonstrated above generates an SQL query on the web server that is then passed onto the SQL database server. An example of what that query looks like can be seen below.
+
+Now, with a normal login we would supply the username in the $user parameter, so that variable would contain something along the lines of "smith."
+
+However, we as attackers don't need to follow the normal protocol; we can submit more interesting data into the field.
+
+ 
+
+Imagine instead that we enter a single quote to close the variable that it is expecting, then add a SQL command meant to delete all of the users table. Will the SQL query know the difference between the user input and the command its supposed to run?
+
+As we can see below, the data we entered caused the variable the database was expecting to be blank. However, there is another command after that command, and since it is separated by a semicolon the database will execute it!
+
+More in-depth attacks
+Unfortunately there is a lot an attacker can achieve with SQL Injection. In this subsection we will demonstrate how an attacker can authenticate, steal data from the same table(s) the web page is querying, steal data from different tables using the UNION operator, create new users, and even get a shell.
+
+Authentication with Back-End DB
+The first thing an attacker may want to do with an SQL Injection attack is to log in as another user. Consider the following code, which does the authentication check in SQL.
+
+set UserFound=execute(
+
+“SELECT * FROM UserTable WHERE
+username=‘ ” & form(“user”) & “ ′ AND 
+password= ‘ ” & form(“pwd”) & “ ′ ” );
+
+The user provides the username and password, and the query returns true or false. But what happens if the user gives the username of an important user, say the administrator, and instead of supplying a password injects SQL code that always evaluates to true? For example, the attacker could enter into the pwd form:
+
+' OR 1=1
+
+Our parameter is now:
+
+set UserFound=execute(
+
+“SELECT * FROM UserTable WHERE
+username=‘admin′ AND 
+password= ‘' OR 1=1 ” );
+
+The attacker has now logged into the site as an administrator without their password.
+
+Using SQL Injection to Steal Data
+The attacker can use a similar trick to the one above to steal information on every user in the database. Imagine that instead of using the statement that always evaluates to true as input for the password, the attacker uses it as input for the username. Then, the attacker comments out the rest of the SQL statement, effectively making sure the password check is never performed. The resulting code is below.
+
+set UserFound=execute(
+SELECT * FROM UserTable WHERE
+username=‘’ OR 1=1 -- … );
+
+Now every record in the table UserTable matches the query, and they will all be returned to the attacker. The attacker has just stolen information about every user in the database.
+
+Getting a shell
+One scary thing an attacker can do with a SQL Injection attack is get a shell on the system. They can do this using the exec command. Instead of entering a username, the attacker can enter:
+
+′ exec cmdshell ‘net user badguy badpwd’ / ADD --
+
+The web server will then execute the following query:
+
+set UserFound=execute(
+SELECT * FROM UserTable WHERE
+username= ‘’ exec … -- … );
+
+This will create an account for the attacker on the server, and the attacker can then log in with the specified username and password.
+
+Pull Data From Other Databases
+So far all of the data the attacker has been able to get has been from the same table. But how can the attacker get data from other tables?
+
+Enter the UNION command. The UNION command allows the command to return a union of results from two separate queries, usually on more than one table. Imagine the following code injected into a form.
+
+’ AND 1=0
+UNION SELECT cardholder, number, exp_month, exp_year FROM creditcards
+
+The results of this are the results of both queries combined into one results set. The first query results in empty data, but the second query sends credit card data straight to the attacker!
+
+More SQL Injection Attacks
+ 
+
+Imagine that the website the attacker is attacking has closed registration, but the attacker really wants to be part of the site. You can think of this as a site only for internal use in a company. How can the attacker use SQL Injection to get an account?
+
+Well, the answer is simple. Rather than injecting a SELECT command, the attacker can inject an INSERT command, which adds data to a table.
+
+’; INSERT INTO USERS (‘uname’,‘passwd’,‘salt’)
+VALUES (‘hacker’,‘38a74f’, 3234);
+
+Similarly, an UPDATE command can be used to reset someone's password or email address.
+
+’; UPDATE USERS SET email=hcker@root.org WHERE email=victim@yahoo.com
+
+ 
+
+ 
+
+
+ 
+
+Preventing SQL Injection
+Hopefully this section has demonstrated that SQL Injection attacks can be devastating, and must be defended as best as possible. Luckily there are defensive techniques available.
+
+Input validation
+The first method of defense is not so great, but it is often used. This strategy is called input validation. Input validation filters special characters including apostrophes, semicolons, percent symbols, hyphens, underscores. Any character that has special meanings in SQL are filtered.  In addition, input validation should also check the data type tn ensure that the data that was received was the type that was expected.
+
+Allow listing
+The next defense, which is much stronger, is called allow listing. Allow listing allows only a well-defined set of safe values.  This is typically done implicitly through a defined set of regular expressions. Allow listing is the opposite of deny listing in that deny listing defines “bad” characters that shouldn't be allowed, and allow listing defines good characters that can be allowed. This addresses the main issue with deny listing, which is forgetting to filter something that should have been filtered.
+
+Escaping Quotes
+Another strategy is to use escape character. Escape characters can be used to prevent the attacker supplied quote from becoming part of the query by putting an escape character before it.  An example would be the string: escape(o’connor) = o’’connor.  Unfortunately different databases have different rules for escaping.
+
+Prepared Statements
+A stronger defense against SQL Injection attacks are prepared statements. Prepared statements are a feature of SQL that can solve the problem of SQL injection by changing the way parameters are passed to the query. Before we can understand this we must discuss the role of metacharacters.
+
+The root cause of SQL injection attacks is that metacharacters such as the single quote character are used in queries to provide distinction between data and control. In most injection attacks metacharacters are insert in data, and are therefore interpreted as control. This modification changes the semantics of a query or a command.  
+
+Prepared statements solve this by binding variables with a place holder. Some character such as a question mark is used where a variable exists.  A question mark placeholders is guaranteed to be data, not control, removing the ambiguity that leads to SQL Injection originally. Prepared statements allow creation of static queries with these bound variables, and preserves the structure of intended query.
+
+Object Relational Mappings (ORMs)
+The last defense we will discuss is ORMs. For those of you who are used to writting code in an object oriented language, ORMs are a library that makes interacting with the database easier by abstracting it behind an object in the language. Often times a programmer using ORMs does not need to write any SQL code, but still can interact with the database. These translations between object and SQL handle sanitizing the input for the programmer, so the programmer does not need to worry about sanitizing the auto-generated SQL query. A good example of an ORM is sqlalchemy for Python.
+
+
+10.5 Cross-Site Request Forgery (CSRF/XSRF)
+Imagine that you are checking your bank account, and when you are finished doing your online banking you open a new tab and navigate to some website to read some posts or see some videos. When you finish you go back to your bank account website and refresh the page, and notice a new transfer of $1000 from your account to an account you have never heard of. Your bank website says that you initiated the transaction just a few minutes ago. How could this happen?
+
+Unfortunately, something like this is possible with an attack called cross-site request forgery, or CSRF. CSRF is an attack that forces an end user to execute unwanted actions on a web application in which they're currently authenticated. CSRF attacks specifically target state-changing requests, not theft of data, since the attacker has no way to see the response to the forged request.
+ 
+
+Confused Deputy Problem
+The problem here is called the confused deputy problem. In this context, a confused deputy is a trusted authority or program that is tricked into misusing its own authority. Imagine that there exists a user Eve who wants to write to a file F, but is not allowed to. However, a service S can write to F. If Eve can trick S into writing what she wants into F, then she has successfully confused the deputy.
+
+In the case of a CSRF attack, we will see that the confused deputy is, in fact, the browser. Without any user input on the matter, the confused deputy takes malicious input from a malicious site and confuses it for an instruction to send a request to a victim site.
+
+In this video we will explore how CSRF attacks work. We will then explore some diagrams below and discuss some prevention methods for CSRF.
+
+XSRF (aka CSRF): Basic Idea
+As the video described, the basic idea of a CSRF attack is that the user establishes a session with a victim server, then visits a malicious site. This site then sends JavaScript to the user's browser that forces the browser to send a forged request to the victim server. Having no way to determine if the user wanted to issue the request or if the browser did it automatically, the victim server complies.
+
+This process is demonstrated in the graphic below.
+
+To better understand why this is such a big problem, think about how long you stay logged into Gmail. The answer is probably weeks or months.  The way this works is that you log into Gmail, and Gmail responds by sending a cookie to your web browser that has an authentication token. This token is valid for a long time, and the browser passes it back each time you visit Gmail until the token expires.
+ 
+
+XSRF Defenses
+Thankfully, there are ways that a server can prevent itself from becoming a victim of CSRF. These methods include CSRF validation tokens, referrer validation, and custom HTTP headers. Out of these, CSRF validation tokens are the strongest and most reliable.
+
+CSRF validation token
+
+This defense is one of the most popular and recommended methods to mitigate CSRF. The idea is that every time the user is presented with an opportunity to perform an action (i.e. through a form on the web page) they are also provided with a new, random secret value. This value can be generated either with state (synchronizer token pattern) or stateless (encrypted/hash based token pattern). When the user submits the form, they must also submit this randomly generated token. If the token is not present, the request is believed to be forged and the requested action is not performed.
+
+Referrer validation
+
+Another less strong method of defending against CSRF is referrer validation. Referrer validation verifies the origin of the request with standard headers. There are two steps to this mitigation, both of which rely on examining an HTTP request header value. The 1st step is to determine the “origin” the request is coming from (source origin). This step can be done via the origin and/or the referer header. The second step is to determine the “origin” the request is going to (target origin). If all of these check out, the transaction is performed.
+
+Custom HTTP header
+
+A final way of validating the request is with a custom HTTP header. This defense adds a custom header to the HTTP packet that is sent back with all requests.  An example is a header value of X-Requested-By, with a value of XMLHttpRequest.
+
+10.6 Securing Software Updates with The Update Framework (TUF)
+One of the best ways to ensure that your machine stays safe is to update your software as quickly as possible. Software updates contain patches that help patch known vulnerabilities, closing avenues for attack. But how are these updates kept secure?
+
+In this section we will discuss update security, and how The Update Framework (TUF) prevents attackers from injecting malicious binaries into software updates, keeping your computer safe from malicious attacks through update servers.
+
+Repository Compromise
+Before we can talk about how TUF works, we first need to understand what it seeks to defend against. To be clear, TUF does not attempt to defend update server or repository from compromise. Instead, TUF assumes that the update server or repository will be compromised at some point, and instead focuses on containing the compromise to only a short period of time.
+
+In this video we will explore the concept of repository compromise, and how existing solutions using SSL/TLS does not work sufficiently to defend against repository compromise.
+
+Reflect
+Update security is a difficult problem. Many organizations with large staff and very talented security teams have attempt to prevent attackers from compromising their update mechanisms, and many, ultimately, have failed. Below is a graphic that shows just some of the organizations that have had their update servers compromised, despite their best effort to secure it. If "normal" attackers can compromise these big entities, imagine what well-funded nation states can do.
+
+Given this context, doesn't it make sense that our aims change? Instead of putting all of our eggs in one proverbial basket by trying to keep the attackers out, shouldn't we distribute our proverbial eggs? Shouldn't we have not just prevention mechanisms, but recovery mechanisms as well?
+ 
+This is the goal solved by TUF. TUF is not meant to replace preventive mechanisms, but rather to provide a safety-net when they fail.
+ 
+
+The Update Framework (TUF)
+Now that we understand what threats TUF addresses, we can begin to discuss the moving parts in more detail. As we mentioned before, updates require an update repository to store the updates and push them out to users. But what exactly is a repository?
+
+Put simply, a repository is a place where data and metadata (or data about that data) are stored and edited. In this case our data will be packages, which are the smallest unit of an update and contain a software application or library. In order to protect these packages we need some information about them, also called metadata. Typically this metadata includes cryptographic hashes, file sizes, version numbers, and more information. This metadata is typically about packages, but can also be about other metadata files.
+
+The image below shows how metadata is signed and used in TUF, but you don't have to worry about the fine details just yet. Instead, we should just notice a few things.
+
+The metadata contains signatures. This is going to be very important for how TUF secures update data. Who signs what updates will be discussed later in this section.
+Hashes of the data are included in the metadata.
+The version number is included in the metadata.
+
+Design principles used in TUF
+Now that we understand repositories, we can dive right into the design of TUF. TUF seeks to mitigate the damage caused by the compromise of an update server by using a few important principles. These principles are separation of duties, selective delegation of trust, threshold signatures, explicit and implicit revocation of keys, and minimizing risk of long-term compromise by using offline keys.
+
+TUF uses separation of duties to ensure that the right person is attesting to the right thing. For example, you would not want a manager who never looked at the code of the project attesting for the quality of the code, or that the code had not been compromised. For this reason, TUF uses a method that makes it easy for a person to sign off for the code their responsible for, or to delegate that responsibility to others should it be necessary. If multiple people are responsible for the code, threshold signatures can be used to ensure that a significant number of them are willing to attest to the code.
+
+On occasion, keys can become compromised. TUF handles this through implicit and explicit revocation of keys. Implicit revocation is done using key experation dates. Explicit revocation of keys is done by replacing an old key value in the metadata with a new one. Finally, TUF minimizes the risk of long-term compromise by using offline keys. Some keys need to be online in order to sign updates on the fly, but to the extent that keys can be offline, they are held offline in the TUF model.
+
+In the figure below we can see that TUF is broken down into multiple roles, the targets role, the snapshot role, the timestamp role, and the root role that is not shown here. Each of these roles provides a different guarantee to the system, and will be covered in more detail in the video below. Each of these roles have metadata associated with them, which are signed by individuals with the appropriate keys.
+
+In the figure below we can also see the selective trust delegation in place. We can see that the entity A1 is responsible for all "A files," or files beginning in A. However, A1 works with another developer, A2, who packages that code and maintains the packages. Therefore, A1 delegates their trust to A2 for all files that begin in A and end in .pkg. Therefore, A2 is responsible for signing A.pkg.
+
+Conclusions 
+Of course, TUF only helps if it is used in practice. Thankfully, TUF is beginning to be adopted by many companies and has become a CNCF standard. In the following video we review what we have learned about TUF, and discuss the impact it is having on industries including cloud companies and automobiles.
+
+TUF is being used in production by LEAP, Flynn, VMware, DigitalOcean, Cloudflare, CoreOS, and Docker. At least three automotive suppliers, Advanced Telematic Systems, Lear Corporation, and OTAinfo, as well as a major OEM whom we cannot disclose, are integrating Uptane.
+ 
+ 10.7 Buffer Overflows
+In the past parts of this section we have focused mostly on web security. However, binary applications can be attacked as well. In this section of the lesson we will discuss perhaps the most iconic vulnerability: the buffer overflow. We will then discuss some ways that operating systems try to defend against buffer overflows, and how programmers can avoid them.
+
+Overview
+A buffer overflow is an  attack where a malicious user injects malicious code into a program already running on the machine. This code could allow the attacker to take complete control of the machine, including getting root shells. Depending on the binary under attack, this could occur either through text input, file input, or even remotely using network input.
+
+Buffer overflows are preventable, but are still common.  They still represent 50% of The Community Emergency Response Team (CERT) advisories over a decade after the Morris Worm. Some fixes include: Safe string libraries, StackGuard, and Static Analysis.  There are other Types of Overflows including: Heap, Integer, etc, which we will not be discussing in too much detail here. For more on these vulnerabilities we suggest taking the Application Security class.
+
+Anatomy
+A buffer overflow occurs when a buffer, which is fixed-length portion of memory used to store user input, is smaller than the user input it is meant to store. If the programmer does not correctly copy only to the size of the buffer, the user input could be copied past the buffer and into other memory locations.
+
+Small Example
+Consider the following C program.
+
+void get_input() {
+    char buf[1024];
+    gets(buf);
+}
+void main(int argc, char*argv[]){
+    get_input();
+}
+
+In this program we are asking the user to input text data. However, we never put any limit to the amount of data that the user can enter, and we have a 1024 character limit in our buffer. What happens if the user enters more than 1024 characters?
+
+Buffer Overflows Explained
+In this video we will explore the concept of the buffer overflow, as well as learn about the ideas of stack canaries, address space layout randomization (ASLR), data execution protection (DEP), and other forms of defenses such as bounds checking using safe functions.
+
+A More Complicated Example
+In the code below we will explore how an attacker may overwrite the return address of the stack to get a certain part of the code to execute, bypassing an authentication check. Before we look at this in detail it is important to state that there are a lot of things going wrong in this code, and the buffer overflow is one problem among many. However, for this example we will be focusing only on the buffer overflow.
+
+The program below has three functions: a function that checks a password entered by the user, a function that opens a vault, and a main function that ties them all together. When checking the password, the program does not perform any bounds checking, and the buffer is only 16 bytes long. The goal of an attacker is to open the vault, and this lack of bounds checking provides them with an opportunity.
+
+If instead of trying to guess the password, the attacker were to provide more than 16 characters, they could write past the buffer into other areas of the stack. If the attacker knew the address of the openVault() function (which is not too difficult to do as an attacker), they can overwrite the return address on the stack to return to openVault() rather than returning main.
+
+The safe_gets() Function
+The way the defender could avoid this attack is by using a function that does bounds checking on the user input. On example of this is the safe_gets() function specified below. Unlike regular gets(), this function takes a number of maximum characters that it will copy into the buffer, preventing an overflow.
+
+#define EOLN '\n'
+void safe_gets (char *input, int max_chars) {
+    if ((input == NULL) || (max_chars < 1))) return;
+    if (max_chars == 1) { input[0] = 0; return; }
+    int count = 0;
+    char next_char;
+    do {
+        next_char = getchar(); // one character at a time
+        if (next_char != EOLN)
+        input[count++] = next_char;
+    } while ((count < max_chars-1) && // leave space for null
+          (next_char != EOLN));
+    input[count]=0;
+}
+
+ 
+
+Buffer Overflow Protection
+There exist safe and unsafe libraries and functions in relation to buffer overflows. In C, the functions to avoid are:
+
+strcpy()
+strcat()
+sprintf()
+scanf()
+and more.
+Instead, you can use their safe versions, which are strncpy(), strncat(), fgest(), and others. Libraries such as Microsoft's StrSafe, Messier, and Viega's SafeStr perform bounds checks and null termination for you, but you must pass the correct buffer size to functions. In C++ the standard library string class handles allocation. Interpreted languages enforce type safety and raise exceptions for buffer overflow attacks.
+
+
+Additional Approaches
+Although the best way to prevent is to add bounds checking to code, there are many circumstances in which that is not possible and not likely. Therefore, operating systems and software developers have picked up other tools for preventing buffer overflow attacks. These include stack canaries, which were described in the video above, static analysis, non-executable stacks, and address space layout randomization.
+
+10.8 Types of Memory Corruption
+Unfortunately, buffer overflows are not the only type of memory corruption that exist. Similar memory corruption attacks like the heap overflow, the integer overflow or underflow, and format string vulnerabilities also give attackers a way to read and write to memory in an unauthorized way. In this video we will explore these topics on a high level. Then we will take a look at some code that makes these attacks possible.
+
+
+Memory Corruption Attacks
+As the video stated, in addition to buffer overflow attacks there exist many other overflow attacks. In this section we will discuss some of these on a high level, but for more information we encourage you to take the application security class offered here at NYU Tandon School of Engineering.
+
+Heap-Based Overflows
+In addition to the stack, there is also an area of memory called the heap. This is the area of memory that is used when we call system calls like malloc() or realloc(). Just like the stack, when we allocate memory onto the heap in a language like C, we as programmers are required to do bounds checking to ensure that the data does not overflow that allocated memory. Failure to do so opens us up to a heap overflow, which can cause the attacker to modify the control path pf the program. Like buffer overflows, the correct way to deal with these vulnerabilities is with bounds checking.
+
+Format String Vulnerabilities
+In C, there is an option to format strings to include variables in output. For example, the format string "Hello %s" prints the word Hello, followed by a string that is supplied to the function. In addition to this, the format string can include a number of characters to print from the passed variable(s). An example of the use of format strings is shown below.
+
+void format_warning (char *buffer,
+      char *username, char *message) {
+      sprintf (buffer, "Warning: %10s -- %8s",
+          message, username);
+}
+
+If the variable that is passed exceeds the number of characters in the format string, the buffer overflows. An attacker can input strings that contain shellcode or some return address the attacker desires to get to in order to gain control of the program.
+
+Integer Overflows and Underflows
+In every architecture there is a largest and a smallest integer that the machine can represent. So, let's consider the largest integer that a machine can represent and call that number n. What happens if we try to compute n + 1?
+
+This is the idea of the integer overflow, and in practice what happens is that the value wraps around the the minimum number that can be represented, which is a negative number. That is, the addition of a positive number n plus the positive value 1 ends up in a negative result. Clearly this is not desired, and if it occurs any bounds checking that is done using the integer n is no longer valid.
+
+For a concrete example, please see the code below. Assume that this code is compiled on a machine that can only represent the values -231 to 230.
+
+/* Writes str to buffer with offset characters of blank spaces preceding str. */
+3 void formatStr(char *buffer, int buflen,
+4      int offset, char *str, int slen) {
+5      char message[slen+offset];
+6      int i;
+7
+8      /* Write blank spaces */
+9      for (i = 0; i < offset; i++)
+10         message[i] = ' ';
+11
+12     strncpy(message+offset, str, slen); // what happens if message + offset >= 231?
+13     strncpy(buffer, message, buflen);
+14     message[buflen-1] = 0; /*Null terminate*/
+15 }
+
+In this example, if an attacker sets the offset to 232, the values wrap around to negative values. This forces the program to write outside of the bounds of the message, which is an arbitrary address on the heap.
+
+Summary
+In summary, we learned about many different memory corruption issues, including the buffer overflow, heap overflow, integer underflow and overflow, and more. We learned that we should bounds check all of our buffers, and we also learned about other protections that make buffer overflows harder to do, but do not defend against them entirely.
+
+
+

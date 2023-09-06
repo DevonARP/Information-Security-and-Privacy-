@@ -1,0 +1,109 @@
+Lesson 3: Threat Modeling
+
+3.1 Threat Modeling
+Assets are the data, personnel, devices, systems, and facilities that enable the organization to achieve its purposes.
+
+A threat to a system is any potential occurrence, malicious or otherwise, that can have an adverse effect on the assets and resources associated with the system.
+
+A vulnerability of a system is some characteristic that makes it possible for a threat to occur.
+
+An attack on a system is some action that involves exploitation of some vulnerability in order to cause an existing threat to occur.
+
+Main Steps of Threat Modeling
+Understand your system
+Understand what assets/resources need to be protected
+Predict who the potential attackers are against a particular asset and what are the possible (known) attacks
+Perform risk assessment. Determine what is the expected risk (quantitative or qualitative) because of an attack 
+Perform risk management: Employ security mechanisms (mitigation), if needed. Determine if they are cost effective
+
+One way to do this is to use Microsoft's STRIDE Model, which categorizes threats into Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. 
+Using this framework we can decide what threats are possible against our system.
+
+We cannot stop at just knowing what's possible, however. We also need to rank these threats in order to know what is most important to take care of immediately. In order to do this we can use the DREAD ranking method, which allows us to rank threats based on 
+Damage Potential, Reproducibility, Exploitation Cost, Affected Users, and Discoverability.
+
+STRIDE Model: Classifying Threats
+Spoofing: Using someone else’s credentials to gain access to otherwise inaccessible assets.
+Tampering: Changing data to mount an attack.
+Repudiation: Occurs when a user denies performing an action, but the target of the action has no way to prove otherwise.
+Information disclosure: The disclosure of information to a user who does not have permission to see it.
+Denial of Service: Reducing the ability of valid users to access resources.
+Elevation of privilege: Occurs when an unprivileged user gains privileged status.
+
+DREAD Model: Ranking Threats
+One methodology for ranking threats is DREAD (used by Microsoft!)
+
+Damage Potential
+Reproducibility
+Exploitability Cost (or cost and ease of performing attack)
+Affected Users
+Discoverability
+
+3.2 Attack Trees
+Attack trees allow us to systematically consider the potential attacks that may realize a threat.
+
+Attributes: Boolean
+Attributes: Continuous
+
+MITRE ATT&CK
+
+The Cyber Kill Chain
+Reconnaissance
+When the attacker selects targets and performs research on them, including email addresses, social relationships, software infrastructure, etc.
+
+Weaponization
+When the attacker couples a program with an exploit to create a deliverable payload. This payload will be used in the attack in further steps. This can be aided by automated tools or done manually, but is more frequently automated.
+
+Delivery
+The attacker transmits the payload to the target environment. This can occur through a wide variety of avenues.
+
+Exploitation
+The payload triggers on the targeted environment and runs the code paired with it.
+
+Installation
+The code installs methods for continued access, such as a remote access Trojan or backdoor. This allows persistent control of the machine for the attacker.
+
+Command and Control
+The compromised host establish a channel with other attacker controlled machines to take orders from command machines.
+
+Actions on Objectives
+In this step the attacker leverages the machines they were able to control to perform some malicious action in the organization, such as lateral movement, or exfiltration of resources.
+
+3.3 Information Security Risk
+Whenever we have an asset, that asset can be at risk. Said another way, there is a chance that a negative event might occur that may cause a loss in value
+
+Risk = p(Attack) x c(attack)
+where p() is a function that determines probability and c() is a function that determines consequence
+
+In this section we will be considering something we call IT assets which are a subset of assets. These assets include information, IT processes and functionality, and IT systems. Though the risk management strategies that we consider are for IT assets only,
+ IT assets may impact other assets that an organization controls.
+
+Risk Assessment and Management
+Risk Assessment
+Risk assessment can be done in two major ways: quantitative or qualitative. Each of them have advantages and disadvantages, and can be suited towards different scenarios.
+
+Quantitative approach
+
+In the quantitative approach to risk assessment, we compute expected monetary values that we expect to lose for all events that affect an asset. We can then calculate the probability that loss will happen. Using the formula provided earlier, we can see
+ that this gives us an exact numerical risk that we can use when we move on to the risk management process.
+
+Qualitative approach:
+
+In the qualitative approach to risk management, we can use categories such as low, medium, high or other labels to stand in for numerical values. We can then use these to calculate a risk. For example, we can say that an event that has a high impact but
+ a low probability has a medium risk. A more interesting example could be a medium probability but a high impact, giving us a medium-high risk.
+ 
+ Risk Management
+After we have assessed the risk, we can begin to manage it. Based on the risk we have calculated, we may want to take one of the following steps.
+
+Accept the risk: The risk is so low or so costly to mitigate that it is worth accepting.
+Transfer the risk: Transfer the risk to somebody else via insurance, warnings etc.
+Remove the risk: Remove the system component or feature associated with the risk if the feature is not worth the risk.
+Mitigate the risk: Reduce the risk with countermeasures.
+
+Which strategy you wish to take is highly dependent on the situation. For example, consider that you measured the risk of an event to be $5,000. You discovered that you can mitigate this risk by installing a specific type of firewall that costs 
+$10,000. At this point it may be worthwhile to accept the risk, since the price of mitigation is greater than the risk itself.
+
+Confidential: “shall be applied to information, the unauthorized disclosure of which reasonably could be expected to cause damage to the national security”
+Secret: “shall be applied to information, the unauthorized disclosure of which reasonably could be expected to cause serious damage to the national security”
+Top Secret: “shall be applied to information, the unauthorized disclosure of which reasonably could be expected to cause exceptionally grave damage to the national security”
+

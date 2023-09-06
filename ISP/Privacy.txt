@@ -1,0 +1,58 @@
+Lesson 11: Privacy and Anonymity
+
+11.1 What is Privacy?
+We all talk about privacy frequently, but what does it mean? In this view we will explain the idea of privacy as secrecy, and discuss why we may find this definition to be lacking.
+
+Privacy as Contextual Integrity
+We can agree that privacy as secrecy has its flaws, but what other ways can we define privacy? In the following video we will explore the ideas of privacy as contextual integrity, and privacy as data autonomy.
+
+11.2 Differential Privacy
+Now that we understand how we can define privacy, let's look at one of the most famous technological developments in privacy: Differential Privacy. In the following video we will examine the problem of data privacy, and motivate the need for differential privacy.
+
+How does it work?
+Now that we understand what differential privacy is on a high level, let's dive a little deeper into how differential privacy works. In the following video we will look at the mathematical definition of differential privacy, then look at an algorithm that attempts to achieve differential privacy.
+
+11.3 Other Privacy Technology
+In this video we will briefly outline other technologies used to defend one's privacy. Each of these topics deserve a lecture on their own, but they are quite detailed and require knowledge that we do not cover in this course. For this reason, we will only provide a cursory overview of these topics so that you might recognize them and understand the intention.
+
+11.4 Anonymity
+In the following video we will discuss the differences between anonymity, pseudonymity, and privacy. 
+
+11.5 Mixing
+In the following video we introduce the concept of mixing, and how it introduced the first real anonymity system to the modern Internet.
+
+11.6 Anonymity with Tor
+Now that we understand mixing, let's see the most modern and popular anonymity system: Tor. In the following video we will learn what Tor is and how it works.
+
+What is Tor?
+Tor (derived from the original software name “The Onion Router”) is free and open-source software that uses an overlay network to conceal its users’ identities and activity from surveillance. There is a large community of researchers, developers, and relay operators involved in the Tor network, as well as millions of users. The project has been funded by the US Department of Defense, Electronic Frontier Foundation, Voice of America, Google, NLnet, Human Rights Watch, and others. Tor was originally designed, implemented, and deployed as a third-generation onion routing project of the U.S. Naval Research Laboratory for the primary purpose of protecting government communications and is now used worldwide by activists, journalists, law enforcement, and the general public.
+
+ 
+
+Who needs privacy?
+Citizens
+Regular citizens don't want to be watched and tracked.
+
+Businesses
+Businesses need to keep trade secrets.
+
+Law enforcement
+Law enforcement needs anonymity to get the job done.
+
+Government
+Governments need anonymity for their security.
+
+Journalists
+Journalists and activists need anonymity for their personal safety.
+
+Anonymity Nets
+You can't get anonymity on your own: private solutions are ineffective...
+
+... so, anonymity loves company!
+
+How to Design Anonymity Relay?
+The simplest designs use a single relay to hide connections.
+
+11.7 Other Anonymity Methods
+Tor is by far the most popular anonymity system on the net. However, that doesn't mean that there aren't other theoretical and practical anonymity networks in existence. In this video we will briefly outline other anonymity methods that exist, and what practical implementations of them exist, if any.
+

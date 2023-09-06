@@ -1,0 +1,132 @@
+Lesson 9: Containerization: VMs and Containers
+
+9.1: Containerization
+Access control in context of VM, virtualization, and containerization.
+
+Now that we have learned about access control, let's take a little bit more of a dive into how the OS achieves access control, and whether or not these methods are sufficient. In order to do that, we need to discuss some of the goals of an operating system.
+
+Although an operating system has many goals, we're going to focus on ones that are directly related to access control. These are process isolation, programming abstraction, and restricting resource consumption. In the first, process isolation, we need to make 
+sure that two or more processes that are running on the same machine do not interfere with each other in any way, but still have ways of communicating with each other. This is a difficult task, and is handled by things like Inter-process communication.
+
+In order to ensure this is easier to do for programmers, the operating system must provide a layer of abstraction for programmers to write their code. This is done by providing programmers with functions, etc., that interact with the operating system. An 
+example of this may be fopen system call in Linux. By doing this OSes attempt to make things easier for the programmer and more secure for the system by controlling the way in which programmers can access resources. Said another way, this interface is a way 
+to interact with the reference monitor.
+
+In addition, the OS needs to restrict resource consumption on the machine. If it does not restrict consumption, one process can hog all resources and starve the other processes on the machine.
+
+So now that we understand what OSes need to do, we want to consider the following question: why use containers and VMs? What do they add?
+
+As we can see, modern operating systems have a lot going on. The more processes we have running on a modern system, the more complicated it becomes. The more complicated it becomes, the more difficult it is to reason about the security properties of the system, 
+and how well the system will work at a given point in time.
+
+Why does resource isolation matter?
+In the previous video we discussed that one job that the operating system has is to restrict the resources that are available to processes, usually to isolate resources to one process or another. But why does this matter?
+
+Consider a malicious application that wants to deny service to other applications. If the operating system does not control resources, what stops this application from taking up all of the memory to stop them from being able to compute, or from writing to the
+ entire disk to deny other processes the ability to store information? What stops it from overloading the network so no other computers in the area can effectively communicate?
+
+The security of a modern machine relies on resource isolation. As we have discussed previously, Chromium demonstrates a good understanding of this by isolating errors into one tab, so one malicious site cannot crash the entire browser. This is shown again 
+below.
+
+9.2 Virtualization
+As we discussed in the previous section, the operating system has methods of performing program isolation, resource allocation, and program abstraction. When we discussed the benefits of virtual machines, the same benefits came up. So if the virtual machines 
+have the same benefits as an operating system, why then do we need them?
+
+The issue here is in the details. Operating systems do have methods of dealing with these things including some of the techniques we have discussed like ACLs, etc. However, these methods are difficult to use properly, and scale in difficulty with system 
+complexity.
+
+OS as a Reference Monitor
+As we have discussed before, one can think of the OS as a reference monitor sitting between user-level applications and the resources of the machine. Access control decisions are made by the OS depending on the security policy. This is simplified by 
+associating processes with users, and storing ACLs with files which state which users can read, write, and/or execute them.
+
+In addition to files, processes are also access controlled. One process cannot write into the memory of another process. Some operations require superuser privilege, which is guarded by processes like setuid, and are relinquished when the operation is 
+completed. Additionally the OS does access control that is totally invisible to the user: it enforces CPU sharing, disk quotas, and other protection policies. These policies are granted at the user level, so all processes running as a given user have the 
+same policy applied to them.
+
+OS Virtual Machines. What does an OS Virtual Machine do?
+Like a typical OS, a hypervisor, which can thought of as being a translation layer for the hardware to the virtual machine, also acts like a reference monitor. The hypervisor mediates access to the hardware between "processes," which in this case are virtual 
+machines (VMs), and provides a very limited namespace so there cannot be accidental leaking of resources and data to other VMs. The hypervisor also provides a simplified programming abstraction to perform these duties, ensuring that every access operation has 
+to go through the reference monitor. At this level of obstraction, it is much easier to restrict resource consumption than on the OS level, because typically there are less VMs than processes running on a typical OS.
+
+ 
+
+Isolation at Multiple Levels
+One of the benefits of VMs is that they provide isolation at many different levels. Each VM is managed independently, and may have different OSes, different virtual disks, different MAC addresses and IP addresses, and more. When a problem occurs in a VM, it 
+stays in that VM. If a program crashes in that VM, it does not affect other VMs around it. If a whole VM crashes, it still does not affect the VMs around it.
+
+Types of Virtualization
+Now that we understand more about why VMs benefit us, and how they can provide isolation, we can begin to look into the details of the different types of virtualization, and how we should choose one. In this video we will discuss three types of virtualization:
+ Type 1a, Type 1b, and Type 2.
+
+Containers vs VMs
+In the previous video we focused on different types of virtualization, but we also briefly discussed another method of isolation: containerization. Containerization is different from virtualization, and is performed by programs such as Docker or LXC.
+
+Before we get into how containers are different, it is important to motivate why they exist. Consider a Type1A hypervisor running three VMs. Each of these VMs have a different copy of an operating system, which also have their own libraries installed, etc. Even 
+if all of these VMs use the same OS (say Linux, for example), they still run separate copies of the OS. This is to ensure the isolation between the processes occurs without a problem. However, since we have three copies of the same OS, this seems like a large 
+waste of disk space. We have three copies of many identical files on the server, each taking up space. In addition to memory, running three copies of the same OS can also lead to wasting CPU resources. If that weren't bad enough in terms of waste, booting a 
+Virtual Machine is the same as starting up a whole operating system, which wastes a lot of time.
+
+So, the issues we have with VMs are not from a security perspective, but rather a performance perspective. Isolation performed by VMs is fantastic, but if similar isolation could be performed at a faster speed, it may be better.
+
+Containerization attempts to address that challenge, and almost succeeds. Containerization is different from VMs in that each container shares an underlying OS infrastructure with every other container in the system. This means that instead of installing an OS
+ for each application for isolation, applications are able to share the resources of the same OS, while still remaining sandboxed from each other.
+
+In the case of Docker, this works by switching the hypervisor layer in Type 2 hypervisor with something called the Docker daemon. The Docker daemon is a service that runs in the background on the host OS and manages the running, scheduling, and creation of new 
+containers. On top of this daemon sits the containers, which are made up of the binaries and libraries necessary to run our application, plus the code for our application itself. Despite sharing the same OS infrastructure, the docker daemon isolates each 
+application from each other, leading to amazing performance gain, but also sacrificing some resource isolation guarantees. If somehow the shared OS is compromised, all of the application containers are compromised. On a VM, however, if one of the VM operating 
+systems are compromised, the others are able to function as normal.
+
+9.3 Programming Language Virtual Machines
+Although virtual machines can be used for the purposes mentioned before, that is not their only usefulness. Virtual machines can also be used to make programmers lives' easier through use in translated languages. The idea is simple: in order to achieve 
+cross-platform comparability, and to check code for safety both at compile time and at run time, you can run the code through a specially programmed virtual machine.
+
+Let's take a look at the programming language Python, which you have used for this class. You write simple python code, but the same code can be used on Windows, Mac, Linux, and other operating systems without issue. It also works on processors of all 
+different makes without being compiled for them. How does this work?
+
+Simply put, Python code is not compiled for the system it is run on. Instead, it is compiled into a simpler format, called bytecode. This bytecode can be seen in the pyc files that are created when you run a Python program. You may wonder how this code can 
+run on a machine that it was not compiled for, and this is where the idea of virtualization begins to be relevant. Sitting on the computer that this code is to be run on is a virtual machine, compiled for the architecture of that computer, that translates 
+this bytecode into machine language. This virtual machine takes in bytecode, translates it to machine instructions, and also performs checks on the code to ensure everything is running correctly and securely. We call these interpreted languages, as compared 
+to compiled languages like C.
+
+Python is not the only interpreted language. Other examples include Java, Lua, Flash, and JavaScript. Though it's clear that these advancements are helpful, there are issues that having an interpreted language can bring.
+
+The first issue is that any bug inside the virtual machine that translates the code is likely to mean complete compromise of the program, and likely of the system. These virtual machines have absolute trust in running arbitrary code, and form a single trust 
+domain. Needless to say, compromise of this would lead to arbitrary code execution, which is not desirable. In addition to this, in order to make it easier for people to program for these languages the standard libraries, and therefore the trusted code bases,
+ are usually very large. Consider the following diagram, which demonstrates how large the trusted computing base is when considering standard libraries for the Java programming language.
+
+Repy V2
+One better design for interpreted languages comes from the RepyV2 library. Although Repy has not yet been ported to Python3 in its entirety, there is still a lot we can learn from the architecture of Repy. Please consult the diagram below, and then we will 
+explore how the architecture works.
+
+As demonstrated by the diagram above, the RepyV2 library is made up of several layers. It starts with a Sandbox Kernel layer, labeled 1 in the diagram. This layer is small, and is the only portion of the system that is part of the trusted code base (TCB). By 
+keeping the TCB so small, we can avoid unnecessary compromises based on code needlessly being in the TCB.
+
+The next layer that exists in the RepyV2 architecture is the policy libraries. These exist above the kernel, and contain explicit capability passing and privileged operations through interaction with the kernel. This is labeled 3 in the diagram above.
+
+Finally we have the highest layer, the user code and standard library imports and system library. This code is untrusted, and executed on top of all of the previous layers. It interacts with the policies thorough the system library, which then goes down and 
+interacts with the sandbox kernel only if the permissions check out.
+
+9.4 Modern Hardware Meets Security
+Software Fault Isolation (SFI)
+[Wahbe et al. SOSP ‘93]
+Processes live in the same hardware address space; software reference monitor isolates them
+Each process is assigned a logical “fault domain”
+Check all memory references and jumps to ensure they don’t leave process’s domain
+Tradeoff: checking vs. communication
+Pay the cost of executing checks for each memory access and control transfer to save the cost of context switching when trapped into the kernel
+
+Inline Reference Monitor
+Generalize SFI to more than just memory safety
+Policy specified in some formal language
+Policy deals with application-level concepts: access to system resources, network events, etc.
+“No process should send to the network after reading a file”, “No process should open more than 3 windows”, …
+Huge semantic gap!
+Policy checks are integrated into the binary code
+Via binary rewriting or when compiling
+Want to be efficient and only add when needed
+Only check divide by zero when doing division
+
+Inserted checks should be uncircumventable
+Rely on SFI for basic memory safety
+
+
